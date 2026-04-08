@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>mBlock Pin UI</title>
+  <title>mBlock Advanced UI</title>
 
   <style>
     body {
@@ -9,28 +9,38 @@
       font-family: Arial;
       display: flex;
       height: 100vh;
+      background: #f5f5f5;
     }
 
-    /* Sidebar */
+    /* LEFT SIDEBAR */
     .sidebar {
       width: 220px;
-      background: #f3f3f3;
+      background: #ffffff;
+      border-right: 2px solid #ddd;
       padding: 10px;
     }
 
-    .category {
-      margin: 10px 0;
+    .menu {
+      margin-bottom: 15px;
+    }
+
+    .menu div {
       padding: 10px;
-      border-radius: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      cursor: pointer;
       color: white;
       font-weight: bold;
-      text-align: center;
     }
 
     .pin { background: #4a90e2; }
-    .other { background: #ccc; }
+    .inactive { background: #ccc; }
 
-    /* Blocks */
+    /* BLOCK AREA */
+    .blocks {
+      margin-top: 10px;
+    }
+
     .block {
       background: #4a90e2;
       color: white;
@@ -38,62 +48,94 @@
       margin: 10px 0;
       border-radius: 20px;
       cursor: grab;
-      width: fit-content;
+      display: inline-block;
     }
 
     select {
       border-radius: 10px;
       border: none;
       padding: 3px;
+      margin: 0 5px;
     }
 
-    /* Workspace */
+    /* WORKSPACE */
     .workspace {
       flex: 1;
-      background: #fafafa;
       padding: 20px;
+      position: relative;
     }
+
+    .dropzone {
+      background: #fff;
+      border: 2px dashed #ccc;
+      height: 100%;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .placed-block {
+      background: #4a90e2;
+      color: white;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 20px;
+      width: fit-content;
+    }
+
   </style>
 </head>
 
 <body>
 
-<!-- LEFT SIDEBAR -->
+<!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="category pin">Pin</div>
-
-  <!-- ONLY REQUIRED BLOCKS -->
-
-  <div class="block" draggable="true">
-    set digital pin 
-    <select>
-      <option>9</option>
-    </select>
-    output as 
-    <select>
-      <option>high</option>
-      <option>low</option>
-    </select>
+  <div class="menu">
+    <div class="pin">Pin</div>
+    <div class="inactive">Serial</div>
+    <div class="inactive">Data</div>
+    <div class="inactive">Sensor</div>
   </div>
 
-  <div class="block" draggable="true">
-    read analog pin (A)
-    <select>
-      <option>0</option>
-      <option>1</option>
-      <option>2</option>
-      <option>3</option>
-      <option>4</option>
-      <option>5</option>
-    </select>
+  <div class="blocks">
+
+    <!-- DIGITAL BLOCK -->
+    <div class="block" draggable="true">
+      set digital pin 
+      <select>
+        <option>9</option>
+        <option>10</option>
+        <option>11</option>
+      </select>
+      output as 
+      <select>
+        <option>high</option>
+        <option>low</option>
+      </select>
+    </div>
+
+    <!-- ANALOG BLOCK -->
+    <div class="block" draggable="true">
+      read analog pin (A)
+      <select>
+        <option>0</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+      </select>
+    </div>
+
   </div>
 
 </div>
 
-<!-- RIGHT WORK AREA -->
-<div class="workspace" id="workspace">
-  <h2>Drag blocks here 👇</h2>
+<!-- WORKSPACE -->
+<div class="workspace">
+  <div class="dropzone" id="workspace">
+    <h3>salam salam drag blocks here 👇</h3>
+  </div>
 </div>
 
 <script>
@@ -102,7 +144,7 @@
 
   blocks.forEach(block => {
     block.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text', block.outerHTML);
+      e.dataTransfer.setData('text/html', block.innerHTML);
     });
   });
 
@@ -112,8 +154,14 @@
 
   workspace.addEventListener('drop', e => {
     e.preventDefault();
-    const data = e.dataTransfer.getData('text');
-    workspace.innerHTML += data;
+
+    const data = e.dataTransfer.getData('text/html');
+
+    const newBlock = document.createElement('div');
+    newBlock.className = 'placed-block';
+    newBlock.innerHTML = data;
+
+    workspace.appendChild(newBlock);
   });
 </script>
 
