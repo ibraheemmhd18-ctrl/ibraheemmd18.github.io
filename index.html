@@ -75,6 +75,17 @@
       color: white;
       width: fit-content;
     }
+
+    /* CLEAR BUTTON */
+    .clear-btn {
+      background: red;
+      color: white;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -141,12 +152,17 @@
 
 <!-- WORKSPACE -->
 <div class="workspace">
+
+  <div class="clear-btn" onclick="clearWorkspace()">🗑️ Clear All</div>
+
   <div class="dropzone" id="workspace">
     <h3>Drag blocks here 👇</h3>
   </div>
+
 </div>
 
 <script>
+
   // SWITCH CATEGORY
   function showCategory(cat) {
     document.getElementById('pinBlocks').style.display = (cat === 'pin') ? 'block' : 'none';
@@ -176,8 +192,19 @@
     newBlock.className = 'placed-block';
     newBlock.innerHTML = data;
 
+    // DOUBLE CLICK TO DELETE
+    newBlock.ondblclick = function () {
+      this.remove();
+    };
+
     workspace.appendChild(newBlock);
   });
+
+  // CLEAR ALL BUTTON
+  function clearWorkspace() {
+    workspace.innerHTML = "<h3>Drag blocks here 👇</h3>";
+  }
+
 </script>
 
 </body>
