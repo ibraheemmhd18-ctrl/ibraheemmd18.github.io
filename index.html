@@ -12,16 +12,11 @@
       background: #f5f5f5;
     }
 
-    /* LEFT SIDEBAR */
     .sidebar {
-      width: 220px;
+      width: 230px;
       background: #ffffff;
       border-right: 2px solid #ddd;
       padding: 10px;
-    }
-
-    .menu {
-      margin-bottom: 15px;
     }
 
     .menu div {
@@ -34,136 +29,12 @@
     }
 
     .pin { background: #4a90e2; }
+    .serial { background: #7ed321; }
     .inactive { background: #ccc; }
 
-    /* BLOCK AREA */
     .blocks {
       margin-top: 10px;
     }
 
     .block {
-      background: #4a90e2;
-      color: white;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 20px;
-      cursor: grab;
-      display: inline-block;
-    }
-
-    select {
-      border-radius: 10px;
-      border: none;
-      padding: 3px;
-      margin: 0 5px;
-    }
-
-    /* WORKSPACE */
-    .workspace {
-      flex: 1;
-      padding: 20px;
-      position: relative;
-    }
-
-    .dropzone {
-      background: #fff;
-      border: 2px dashed #ccc;
-      height: 100%;
-      padding: 10px;
-      overflow-y: auto;
-    }
-
-    .placed-block {
-      background: #4a90e2;
-      color: white;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 20px;
-      width: fit-content;
-    }
-
-  </style>
-</head>
-
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-
-  <div class="menu">
-    <div class="pin">Pin</div>
-    <div class="inactive">Serial</div>
-    <div class="inactive">Data</div>
-    <div class="inactive">Sensor</div>
-  </div>
-
-  <div class="blocks">
-
-    <!-- DIGITAL BLOCK -->
-    <div class="block" draggable="true">
-      set digital pin 
-      <select>
-        <option>9</option>
-        <option>10</option>
-        <option>11</option>
-      </select>
-      output as 
-      <select>
-        <option>high</option>
-        <option>low</option>
-      </select>
-    </div>
-
-    <!-- ANALOG BLOCK -->
-    <div class="block" draggable="true">
-      read analog pin (A)
-      <select>
-        <option>0</option>
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-      </select>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- WORKSPACE -->
-<div class="workspace">
-  <div class="dropzone" id="workspace">
-    <h3>salam salam drag blocks here 👇</h3>
-  </div>
-</div>
-
-<script>
-  const blocks = document.querySelectorAll('.block');
-  const workspace = document.getElementById('workspace');
-
-  blocks.forEach(block => {
-    block.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/html', block.innerHTML);
-    });
-  });
-
-  workspace.addEventListener('dragover', e => {
-    e.preventDefault();
-  });
-
-  workspace.addEventListener('drop', e => {
-    e.preventDefault();
-
-    const data = e.dataTransfer.getData('text/html');
-
-    const newBlock = document.createElement('div');
-    newBlock.className = 'placed-block';
-    newBlock.innerHTML = data;
-
-    workspace.appendChild(newBlock);
-  });
-</script>
-
-</body>
-</html>
+      background: #4
