@@ -12,7 +12,6 @@
       background: #f5f5f5;
     }
 
-    /* SIDEBAR */
     .sidebar {
       width: 230px;
       background: #fff;
@@ -32,9 +31,9 @@
 
     .pin { background: #4a90e2; }
     .serial { background: #7ed321; }
+    .data { background: #bd10e0; }
     .inactive { background: #ccc; }
 
-    /* BLOCKS */
     .block {
       padding: 10px;
       margin: 10px 0;
@@ -46,15 +45,15 @@
 
     .blue { background: #4a90e2; }
     .green { background: #7ed321; }
+    .purple { background: #bd10e0; }
 
-    select {
+    select, input {
       border-radius: 10px;
       border: none;
       padding: 3px;
       margin: 0 5px;
     }
 
-    /* WORKSPACE */
     .workspace {
       flex: 1;
       padding: 20px;
@@ -76,7 +75,6 @@
       width: fit-content;
     }
 
-    /* CLEAR BUTTON */
     .clear-btn {
       background: red;
       color: white;
@@ -91,17 +89,16 @@
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 
   <div class="menu">
     <div class="pin" onclick="showCategory('pin')">Pin</div>
     <div class="serial inactive" onclick="showCategory('serial')">Serial</div>
+    <div class="data inactive" onclick="showCategory('data')">Data</div>
   </div>
 
-  <!-- PIN BLOCKS -->
+  <!-- PIN -->
   <div id="pinBlocks">
-
     <div class="block blue" draggable="true">
       set digital pin 
       <select>
@@ -120,30 +117,39 @@
     <div class="block blue" draggable="true">
       read analog pin (A)
       <select>
-        <option>0</option>
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
+        <option>0</option><option>1</option><option>2</option>
+        <option>3</option><option>4</option><option>5</option>
       </select>
     </div>
-
   </div>
 
-  <!-- SERIAL BLOCKS -->
+  <!-- SERIAL -->
   <div id="serialBlocks" style="display:none;">
+    <div class="block green" draggable="true">write hello to serial port</div>
+    <div class="block green" draggable="true">readable bytes from serial port</div>
+    <div class="block green" draggable="true">read a byte from serial port</div>
+  </div>
 
-    <div class="block green" draggable="true">
-      write hello to serial port
+  <!-- DATA -->
+  <div id="dataBlocks" style="display:none;">
+
+    <div class="block purple" draggable="true">
+      set variable 
+      <input type="text" value="x" size="3">
+      to 
+      <input type="number" value="0" size="3">
     </div>
 
-    <div class="block green" draggable="true">
-      readable bytes from serial port
+    <div class="block purple" draggable="true">
+      change variable 
+      <input type="text" value="x" size="3">
+      by 
+      <input type="number" value="1" size="3">
     </div>
 
-    <div class="block green" draggable="true">
-      read a byte from serial port
+    <div class="block purple" draggable="true">
+      variable 
+      <input type="text" value="x" size="3">
     </div>
 
   </div>
@@ -163,47 +169,42 @@
 
 <script>
 
-  // SWITCH CATEGORY
-  function showCategory(cat) {
-    document.getElementById('pinBlocks').style.display = (cat === 'pin') ? 'block' : 'none';
-    document.getElementById('serialBlocks').style.display = (cat === 'serial') ? 'block' : 'none';
-  }
+function showCategory(cat) {
+  document.getElementById('pinBlocks').style.display = (cat==='pin')?'block':'none';
+  document.getElementById('serialBlocks').style.display = (cat==='serial')?'block':'none';
+  document.getElementById('dataBlocks').style.display = (cat==='data')?'block':'none';
+}
 
-  // DRAG SYSTEM
-  const blocks = document.querySelectorAll('.block');
-  const workspace = document.getElementById('workspace');
+const blocks = document.querySelectorAll('.block');
+const workspace = document.getElementById('workspace');
 
-  blocks.forEach(block => {
-    block.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/html', block.outerHTML);
-    });
+blocks.forEach(block => {
+  block.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/html', block.outerHTML);
   });
+});
 
-  workspace.addEventListener('dragover', e => {
-    e.preventDefault();
-  });
+workspace.addEventListener('dragover', e => e.preventDefault());
 
-  workspace.addEventListener('drop', e => {
-    e.preventDefault();
+workspace.addEventListener('drop', e => {
+  e.preventDefault();
 
-    const data = e.dataTransfer.getData('text/html');
+  const data = e.dataTransfer.getData('text/html');
 
-    const newBlock = document.createElement('div');
-    newBlock.className = 'placed-block';
-    newBlock.innerHTML = data;
+  const newBlock = document.createElement('div');
+  newBlock.className = 'placed-block';
+  newBlock.innerHTML = data;
 
-    // DOUBLE CLICK TO DELETE
-    newBlock.ondblclick = function () {
-      this.remove();
-    };
+  newBlock.ondblclick = function () {
+    this.remove();
+  };
 
-    workspace.appendChild(newBlock);
-  });
+  workspace.appendChild(newBlock);
+});
 
-  // CLEAR ALL BUTTON
-  function clearWorkspace() {
-    workspace.innerHTML = "<h3>Drag blocks here 👇</h3>";
-  }
+function clearWorkspace() {
+  workspace.innerHTML = "<h3>Drag blocks here 👇</h3>";
+}
 
 </script>
 
