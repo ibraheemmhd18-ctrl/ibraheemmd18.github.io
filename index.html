@@ -1,340 +1,156 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>mBlock UI Clone</title>
-  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-  <style>
-    body { margin:0; font-family:Arial; }
-    #topbar {
-      background:#2c3e50;
-      color:white;
-      padding:10px;
-      display:flex;
-      justify-content:space-between;
-    }
-    #blocklyDiv { height:90vh; width:100%; }
-    button {
-      padding:8px 15px;
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
-      margin-left:10px;
-    }
-    .live { background:#27ae60; color:white; }
-    .upload { background:#e67e22; color:white; }
-  </style>
-</head>
-
-<body>
-
-<div id="topbar">
-  <div>mBlock Arduino Clone</div>
-  <div>
-    <button class="live" onclick="setLive(true)">LIVE</button>
-    <button class="upload" onclick="setLive(false)">UPLOAD</button>
-  </div>
-</div>
-
-<div id="blocklyDiv"></div>
-
-<xml id="toolbox" style="display:none">
-
-  <!-- EVENTS -->
-  <category name="Events" colour="#f1c40f">
-    <block type="event_start"></block>
-    <block type="event_flag" disabled="true"></block>
-    <block type="event_key" disabled="true"></block>
-    <block type="event_receive" disabled="true"></block>
-    <block type="event_broadcast" disabled="true"></block>
-  </category>
-
-  <!-- PIN -->
-  <category name="Pin" colour="#3498db">
-    <block type="read_digital"></block>
-    <block type="read_analog"></block>
-    <block type="read_pulse"></block>
-    <block type="set_digital"></block>
-    <block type="set_pwm"></block>
-    <block type="servo"></block>
-  </category>
-
-  <!-- SERIAL -->
-  <category name="Serial" colour="#2ecc71">
-    <block type="serial_write"></block>
-    <block type="serial_read"></block>
-  </category>
-
-  <!-- DATA -->
-  <category name="Data" colour="#9b59b6">
-    <block type="map"></block>
-    <block type="constrain"></block>
-    <block type="convert"></block>
-  </category>
-
-  <!-- SENSOR -->
-  <category name="Sensor" colour="#1abc9c">
-    <block type="ultrasonic"></block>
-    <block type="timer"></block>
-    <block type="reset_timer"></block>
-  </category>
-
-</xml>
-
-<script>
-
-var workspace = Blockly.inject('blocklyDiv', {
-  toolbox: document.getElementById('toolbox')
-});
-
-let liveMode = false;
-
-function setLive(state){
-  liveMode = state;
-
-  workspace.getAllBlocks().forEach(block => {
-    block.setDisabled(!liveMode && block.type !== "event_start");
-  });
-
-  alert(state ? "LIVE MODE ENABLED" : "UPLOAD MODE (blocks disabled)");
-}
-
-/* ================= EVENTS ================= */
-
-Blockly.Blocks['event_start'] = {
-  init: function() {
-    this.appendDummyInput().appendField("when Arduino Uno starts up");
-    this.setNextStatement(true);
-    this.setColour("#f1c40f");
-  }
-};
-
-Blockly.Blocks['event_flag'] = {
-  init: function() {
-    this.appendDummyInput().appendField("when green flag clicked");
-    this.setNextStatement(true);
-    this.setColour("#f1c40f");
-  }
-};
-
-Blockly.Blocks['event_key'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("when")
-        .appendField(new Blockly.FieldDropdown([
-          ["space","SPACE"],["a","A"],["b","B"]
-        ]),"KEY")
-        .appendField("key pressed");
-    this.setNextStatement(true);
-    this.setColour("#f1c40f");
-  }
-};
-
-Blockly.Blocks['event_receive'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("when I receive")
-        .appendField(new Blockly.FieldTextInput("message"),"MSG");
-    this.setNextStatement(true);
-    this.setColour("#f1c40f");
-  }
-};
-
-Blockly.Blocks['event_broadcast'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("broadcast")
-        .appendField(new Blockly.FieldTextInput("message"),"MSG");
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#f1c40f");
-  }
-};
-
-/* ================= PIN ================= */
-
+/* READ DIGITAL */
 Blockly.Blocks['read_digital'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("read digital pin")
-        .appendField(new Blockly.FieldDropdown(pinList()),"PIN");
+      .appendField("read digital pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["0","0"],["1","1"],["2","2"],["3","3"],
+        ["4","4"],["5","5"],["6","6"],["7","7"],
+        ["8","8"],["9","9"],["10","10"],["11","11"],
+        ["12","12"],["13","13"]
+      ]), "PIN");
     this.setOutput(true);
-    this.setColour("#3498db");
+    this.setColour("#4C97FF");
   }
 };
 
+/* READ ANALOG */
 Blockly.Blocks['read_analog'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("read analog pin")
-        .appendField(new Blockly.FieldDropdown([
-          ["A0","0"],["A1","1"],["A2","2"],["A3","3"],["A4","4"],["A5","5"]
-        ]),"PIN");
+      .appendField("read analog pin (A)")
+      .appendField(new Blockly.FieldDropdown([
+        ["0","0"],["1","1"],["2","2"],
+        ["3","3"],["4","4"],["5","5"]
+      ]), "PIN");
     this.setOutput(true);
-    this.setColour("#3498db");
+    this.setColour("#4C97FF");
   }
 };
 
+/* READ PULSE */
 Blockly.Blocks['read_pulse'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("read pulse pin")
-        .appendField(new Blockly.FieldDropdown(pinList()),"PIN")
-        .appendField("timeout")
-        .appendField(new Blockly.FieldNumber(20000),"TIME");
+      .appendField("read pulse pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["2","2"],["3","3"],["4","4"],["5","5"],
+        ["6","6"],["7","7"],["8","8"],["9","9"],
+        ["10","10"],["11","11"],["12","12"],["13","13"]
+      ]), "PIN")
+      .appendField("timeout")
+      .appendField(new Blockly.FieldNumber(20000), "TIMEOUT");
     this.setOutput(true);
-    this.setColour("#3498db");
+    this.setColour("#4C97FF");
   }
 };
 
+/* SET DIGITAL */
 Blockly.Blocks['set_digital'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("set digital pin")
-        .appendField(new Blockly.FieldDropdown(pinList()),"PIN")
-        .appendField("output as")
-        .appendField(new Blockly.FieldDropdown([
-          ["HIGH","HIGH"],["LOW","LOW"]
-        ]),"STATE");
+      .appendField("set digital pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["0","0"],["1","1"],["2","2"],["3","3"],
+        ["4","4"],["5","5"],["6","6"],["7","7"],
+        ["8","8"],["9","9"],["10","10"],["11","11"],
+        ["12","12"],["13","13"]
+      ]), "PIN")
+      .appendField("output as")
+      .appendField(new Blockly.FieldDropdown([
+        ["high","HIGH"],["low","LOW"]
+      ]), "STATE");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#3498db");
+    this.setColour("#4C97FF");
   }
 };
 
+/* SET PWM */
 Blockly.Blocks['set_pwm'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("set PWM")
-        .appendField(new Blockly.FieldDropdown(pinList()),"PIN")
-        .appendField("output as")
-        .appendField(new Blockly.FieldNumber(0),"VAL");
+      .appendField("set PWM")
+      .appendField(new Blockly.FieldDropdown([
+        ["3","3"],["5","5"],["6","6"],["9","9"],["10","10"],["11","11"]
+      ]), "PIN")
+      .appendField("output as")
+      .appendField(new Blockly.FieldNumber(0,0,255), "VALUE");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#3498db");
+    this.setColour("#4C97FF");
   }
 };
 
+/* PLAY TONE */
+Blockly.Blocks['play_tone'] = {
+  init: function() {
+    this.appendDummyInput()
+      .appendField("play pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["3","3"],["5","5"],["6","6"],["9","9"]
+      ]), "PIN")
+      .appendField("with note")
+      .appendField(new Blockly.FieldDropdown([
+        ["C4","262"],["D4","294"],["E4","330"],
+        ["F4","349"],["G4","392"],["A4","440"]
+      ]), "NOTE")
+      .appendField("for")
+      .appendField(new Blockly.FieldNumber(0.25), "TIME")
+      .appendField("beats");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+/* SERVO */
 Blockly.Blocks['servo'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("set servo pin")
-        .appendField(new Blockly.FieldDropdown(pinList()),"PIN")
-        .appendField("angle")
-        .appendField(new Blockly.FieldNumber(90),"ANGLE");
+      .appendField("set servo pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["3","3"],["5","5"],["6","6"],["9","9"],["10","10"]
+      ]), "PIN")
+      .appendField("angle as")
+      .appendField(new Blockly.FieldNumber(90,0,180), "ANGLE");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#3498db");
+    this.setColour("#4C97FF");
   }
 };
 
-/* ================= SERIAL ================= */
-
-Blockly.Blocks['serial_write'] = {
+/* INTERRUPT */
+Blockly.Blocks['suspend'] = {
   init: function() {
-    this.appendDummyInput()
-        .appendField("write")
-        .appendField(new Blockly.FieldTextInput("hello"),"TEXT")
-        .appendField("to serial port");
+    this.appendStatementInput("DO")
+      .appendField("suspend pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["2","2"],["3","3"]
+      ]), "PIN")
+      .appendField("mode")
+      .appendField(new Blockly.FieldDropdown([
+        ["rising edge","RISING"],
+        ["falling edge","FALLING"],
+        ["change","CHANGE"]
+      ]), "MODE")
+      .appendField("executes");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#2ecc71");
+    this.setColour("#4C97FF");
   }
 };
 
-Blockly.Blocks['serial_read'] = {
-  init: function() {
-    this.appendDummyInput().appendField("read serial port");
-    this.setOutput(true);
-    this.setColour("#2ecc71");
-  }
-};
-
-/* ================= DATA ================= */
-
-Blockly.Blocks['map'] = {
+/* NO SUSPEND */
+Blockly.Blocks['nosuspend'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("map")
-        .appendField(new Blockly.FieldNumber(50),"VAL")
-        .appendField("from")
-        .appendField(new Blockly.FieldNumber(0))
-        .appendField("to")
-        .appendField(new Blockly.FieldNumber(100));
-    this.setOutput(true);
-    this.setColour("#9b59b6");
-  }
-};
-
-Blockly.Blocks['constrain'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("constrain")
-        .appendField(new Blockly.FieldNumber(50))
-        .appendField("between")
-        .appendField(new Blockly.FieldNumber(0))
-        .appendField("and")
-        .appendField(new Blockly.FieldNumber(100));
-    this.setOutput(true);
-    this.setColour("#9b59b6");
-  }
-};
-
-Blockly.Blocks['convert'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("convert to")
-        .appendField(new Blockly.FieldDropdown([
-          ["decimal","DEC"],
-          ["string","STR"],
-          ["whole number","INT"]
-        ]),"TYPE");
-    this.setOutput(true);
-    this.setColour("#9b59b6");
-  }
-};
-
-/* ================= SENSOR ================= */
-
-Blockly.Blocks['ultrasonic'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("read ultrasonic trig")
-        .appendField(new Blockly.FieldDropdown(pinList()),"TRIG")
-        .appendField("echo")
-        .appendField(new Blockly.FieldDropdown(pinList()),"ECHO");
-    this.setOutput(true);
-    this.setColour("#1abc9c");
-  }
-};
-
-Blockly.Blocks['timer'] = {
-  init: function() {
-    this.appendDummyInput().appendField("timer");
-    this.setOutput(true);
-    this.setColour("#1abc9c");
-  }
-};
-
-Blockly.Blocks['reset_timer'] = {
-  init: function() {
-    this.appendDummyInput().appendField("reset timer");
+      .appendField("do not suspend pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["2","2"],["3","3"]
+      ]), "PIN");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#1abc9c");
+    this.setColour("#4C97FF");
   }
 };
-
-/* ================= PIN LIST ================= */
-
-function pinList(){
-  let pins = [];
-  for(let i=0;i<=13;i++){
-    pins.push([String(i),String(i)]);
-  }
-  return pins;
-}
-
-</script>
-
-</body>
-</html>
