@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>mBlock Advanced Clone</title>
+  <meta charset="utf-8">
+  <title>mBlock Style Editor</title>
+
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
   <style>
-    body { margin: 0; font-family: Arial; }
-    #blocklyDiv { height: 100vh; width: 100%; }
+    body {
+      margin: 0;
+      font-family: Arial;
+    }
+
+    #blocklyDiv {
+      height: 100vh;
+      width: 100%;
+    }
   </style>
 </head>
 
@@ -15,29 +25,29 @@
 
 <xml id="toolbox" style="display:none">
 
-  <!-- PIN -->
+  <!-- PIN CATEGORY -->
   <category name="Pin" colour="#4C97FF">
 
     <block type="set_digital_pin"></block>
-    <block type="read_analog"></block>
+    <block type="read_analog_pin"></block>
 
   </category>
 
-  <!-- SERIAL -->
-  <category name="Serial" colour="#59C059">
+  <!-- SERIAL CATEGORY -->
+  <category name="Serial Port" colour="#00C853">
 
     <block type="serial_write"></block>
-    <block type="serial_read"></block>
     <block type="serial_available"></block>
+    <block type="serial_read"></block>
 
   </category>
 
-  <!-- DATA -->
-  <category name="Data" colour="#9966FF">
+  <!-- DATA CATEGORY -->
+  <category name="Data" colour="#9C27B0">
 
-    <block type="map_block"></block>
-    <block type="constrain_block"></block>
-    <block type="convert_block"></block>
+    <block type="map_value"></block>
+    <block type="constrain_value"></block>
+    <block type="convert_type"></block>
     <block type="ascii_char"></block>
     <block type="ascii_number"></block>
 
@@ -46,17 +56,27 @@
 </xml>
 
 <script>
+const workspace = Blockly.inject('blocklyDiv', {
+  toolbox: document.getElementById('toolbox'),
+  trashcan: true,
+  scrollbars: true
+});
+</script>
 
-// ---------------- PIN BLOCK ----------------
+<!-- ================= BLOCK DEFINITIONS ================= -->
+
+<script>
+
+/* -------- PIN BLOCKS -------- */
+
 Blockly.Blocks['set_digital_pin'] = {
-  init: function () {
+  init: function() {
     this.appendDummyInput()
       .appendField("set digital pin")
       .appendField(new Blockly.FieldDropdown([
         ["0","0"],["1","1"],["2","2"],["3","3"],
         ["4","4"],["5","5"],["6","6"],["7","7"],
-        ["8","8"],["9","9"],["10","10"],["11","11"],
-        ["12","12"],["13","13"]
+        ["8","8"],["9","9"],["10","10"]
       ]), "PIN")
       .appendField("output as")
       .appendField(new Blockly.FieldDropdown([
@@ -70,8 +90,8 @@ Blockly.Blocks['set_digital_pin'] = {
   }
 };
 
-Blockly.Blocks['read_analog'] = {
-  init: function () {
+Blockly.Blocks['read_analog_pin'] = {
+  init: function() {
     this.appendDummyInput()
       .appendField("read analog pin")
       .appendField(new Blockly.FieldDropdown([
@@ -79,85 +99,87 @@ Blockly.Blocks['read_analog'] = {
         ["A3","A3"],["A4","A4"],["A5","A5"]
       ]), "PIN");
 
-    this.setOutput(true);
+    this.setOutput(true, "Number");
     this.setColour("#4C97FF");
   }
 };
 
-// ---------------- SERIAL ----------------
+/* -------- SERIAL BLOCKS -------- */
+
 Blockly.Blocks['serial_write'] = {
-  init: function () {
+  init: function() {
     this.appendValueInput("TEXT")
       .appendField("write");
+
     this.appendDummyInput()
       .appendField("to serial port");
 
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#59C059");
-  }
-};
-
-Blockly.Blocks['serial_read'] = {
-  init: function () {
-    this.appendDummyInput()
-      .appendField("read a byte from serial");
-
-    this.setOutput(true);
-    this.setColour("#59C059");
+    this.setColour("#00C853");
   }
 };
 
 Blockly.Blocks['serial_available'] = {
-  init: function () {
+  init: function() {
     this.appendDummyInput()
-      .appendField("readable bytes from serial");
+      .appendField("readable bytes from serial port");
 
-    this.setOutput(true);
-    this.setColour("#59C059");
+    this.setOutput(true, "Number");
+    this.setColour("#00C853");
   }
 };
 
-// ---------------- DATA ----------------
-Blockly.Blocks['map_block'] = {
-  init: function () {
-    this.appendValueInput("VALUE")
-      .appendField("map");
+Blockly.Blocks['serial_read'] = {
+  init: function() {
     this.appendDummyInput()
+      .appendField("read a byte from serial port");
+
+    this.setOutput(true, "Number");
+    this.setColour("#00C853");
+  }
+};
+
+/* -------- DATA BLOCKS -------- */
+
+Blockly.Blocks['map_value'] = {
+  init: function() {
+    this.appendDummyInput()
+      .appendField("map")
+      .appendField(new Blockly.FieldNumber(50), "VAL")
       .appendField("from")
-      .appendField(new Blockly.FieldNumber(0), "FROM1")
+      .appendField(new Blockly.FieldNumber(1), "F1")
       .appendField("to")
-      .appendField(new Blockly.FieldNumber(100), "FROM2");
-    this.appendDummyInput()
+      .appendField(new Blockly.FieldNumber(100), "F2")
       .appendField("to")
-      .appendField(new Blockly.FieldNumber(0), "TO1")
+      .appendField(new Blockly.FieldNumber(1), "T1")
       .appendField("to")
-      .appendField(new Blockly.FieldNumber(1000), "TO2");
+      .appendField(new Blockly.FieldNumber(1000), "T2");
 
     this.setOutput(true);
-    this.setColour("#9966FF");
+    this.setColour("#9C27B0");
   }
 };
 
-Blockly.Blocks['constrain_block'] = {
-  init: function () {
-    this.appendValueInput("VALUE")
-      .appendField("constrain");
+Blockly.Blocks['constrain_value'] = {
+  init: function() {
     this.appendDummyInput()
+      .appendField("constrain")
+      .appendField(new Blockly.FieldNumber(50), "VAL")
       .appendField("between")
-      .appendField(new Blockly.FieldNumber(0), "MIN")
+      .appendField(new Blockly.FieldNumber(1), "MIN")
       .appendField("and")
       .appendField(new Blockly.FieldNumber(100), "MAX");
 
     this.setOutput(true);
-    this.setColour("#9966FF");
+    this.setColour("#9C27B0");
   }
 };
 
-Blockly.Blocks['convert_block'] = {
-  init: function () {
-    this.appendValueInput("VALUE");
+Blockly.Blocks['convert_type'] = {
+  init: function() {
     this.appendDummyInput()
+      .appendField(new Blockly.FieldNumber(123))
       .appendField("converted to")
       .appendField(new Blockly.FieldDropdown([
         ["decimal","DECIMAL"],
@@ -166,43 +188,31 @@ Blockly.Blocks['convert_block'] = {
       ]), "TYPE");
 
     this.setOutput(true);
-    this.setColour("#9966FF");
+    this.setColour("#9C27B0");
   }
 };
 
 Blockly.Blocks['ascii_char'] = {
-  init: function () {
-    this.appendValueInput("VALUE")
-      .appendField("ASCII to character");
+  init: function() {
+    this.appendDummyInput()
+      .appendField(new Blockly.FieldNumber(97))
+      .appendField("converted ASCII character");
 
     this.setOutput(true);
-    this.setColour("#9966FF");
+    this.setColour("#9C27B0");
   }
 };
 
 Blockly.Blocks['ascii_number'] = {
-  init: function () {
-    this.appendValueInput("VALUE")
-      .appendField("character to ASCII");
+  init: function() {
+    this.appendDummyInput()
+      .appendField("a")
+      .appendField("converted ASCII number");
 
     this.setOutput(true);
-    this.setColour("#9966FF");
+    this.setColour("#9C27B0");
   }
 };
-
-// ---------------- WORKSPACE ----------------
-const workspace = Blockly.inject('blocklyDiv', {
-  toolbox: document.getElementById('toolbox'),
-  trashcan: true   // ✅ FIX delete issue
-});
-
-// Enable delete with DEL key
-document.addEventListener("keydown", function(e){
-  if(e.key === "Delete" || e.key === "Backspace"){
-    const selected = workspace.getSelected();
-    if(selected) selected.dispose();
-  }
-});
 
 </script>
 
