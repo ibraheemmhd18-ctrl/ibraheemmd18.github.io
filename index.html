@@ -1,11 +1,51 @@
-// ===== PIN BLOCKS (FULL mBlock style) =====
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>mBlock Pin Blocks</title>
+
+<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
+<style>
+body { margin:0; }
+#blocklyDiv { height: 100vh; width: 100%; }
+</style>
+</head>
+
+<body>
+
+<div id="blocklyDiv"></div>
+
+<xml id="toolbox" style="display:none">
+  <category name="Pin" colour="#4C97FF">
+    <block type="read_digital"></block>
+    <block type="read_analog"></block>
+    <block type="read_pulse"></block>
+    <block type="set_digital"></block>
+    <block type="set_pwm"></block>
+    <block type="play_tone"></block>
+    <block type="servo"></block>
+    <block type="suspend_pin"></block>
+    <block type="no_suspend"></block>
+  </category>
+</xml>
+
+<script>
+
+// ===== WORKSPACE =====
+var workspace = Blockly.inject('blocklyDiv', {
+  toolbox: document.getElementById('toolbox'),
+  trashcan: true
+});
+
+// ===== BLOCKS =====
 
 // read digital
 Blockly.Blocks['read_digital'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("read digital pin")
-      .appendField(new Blockly.FieldNumber(9, 0, 13), "PIN");
+      .appendField(new Blockly.FieldNumber(9,0,13));
     this.setOutput(true);
     this.setColour("#4C97FF");
   }
@@ -16,7 +56,7 @@ Blockly.Blocks['read_analog'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("read analog pin (A)")
-      .appendField(new Blockly.FieldNumber(0, 0, 5), "PIN");
+      .appendField(new Blockly.FieldNumber(0,0,5));
     this.setOutput(true);
     this.setColour("#4C97FF");
   }
@@ -27,9 +67,9 @@ Blockly.Blocks['read_pulse'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("read pulse pin")
-      .appendField(new Blockly.FieldNumber(13), "PIN")
+      .appendField(new Blockly.FieldNumber(13))
       .appendField("timeout")
-      .appendField(new Blockly.FieldNumber(20000), "TIME");
+      .appendField(new Blockly.FieldNumber(20000));
     this.setOutput(true);
     this.setColour("#4C97FF");
   }
@@ -40,44 +80,44 @@ Blockly.Blocks['set_digital'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("set digital pin")
-      .appendField(new Blockly.FieldNumber(9, 0, 13), "PIN")
+      .appendField(new Blockly.FieldNumber(9,0,13))
       .appendField("output as")
       .appendField(new Blockly.FieldDropdown([
         ["high","HIGH"],
         ["low","LOW"]
-      ]), "STATE");
+      ]));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
 
-// PWM
+// pwm
 Blockly.Blocks['set_pwm'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("set PWM")
-      .appendField(new Blockly.FieldNumber(5), "PIN")
+      .appendField(new Blockly.FieldNumber(5))
       .appendField("output as")
-      .appendField(new Blockly.FieldNumber(0, 0, 255), "VALUE");
+      .appendField(new Blockly.FieldNumber(0,0,255));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
 
-// play tone
+// tone
 Blockly.Blocks['play_tone'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("play pin")
-      .appendField(new Blockly.FieldNumber(9), "PIN")
+      .appendField(new Blockly.FieldNumber(9))
       .appendField("with note")
       .appendField(new Blockly.FieldDropdown([
-        ["C4","C4"],["D4","D4"],["E4","E4"],["F4","F4"]
-      ]), "NOTE")
+        ["C4","C4"],["D4","D4"],["E4","E4"]
+      ]))
       .appendField("for")
-      .appendField(new Blockly.FieldNumber(0.25), "TIME")
+      .appendField(new Blockly.FieldNumber(0.25))
       .appendField("beats");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -90,27 +130,26 @@ Blockly.Blocks['servo'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("set servo pin")
-      .appendField(new Blockly.FieldNumber(9), "PIN")
+      .appendField(new Blockly.FieldNumber(9))
       .appendField("angle as")
-      .appendField(new Blockly.FieldNumber(90, 0, 180), "ANGLE");
+      .appendField(new Blockly.FieldNumber(90,0,180));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
 
-// suspend pin
+// suspend
 Blockly.Blocks['suspend_pin'] = {
   init: function() {
     this.appendStatementInput("DO")
       .appendField("suspend pin")
-      .appendField(new Blockly.FieldNumber(2), "PIN")
+      .appendField(new Blockly.FieldNumber(2))
       .appendField("mode")
       .appendField(new Blockly.FieldDropdown([
         ["rising edge","RISING"],
-        ["falling edge","FALLING"],
-        ["change","CHANGE"]
-      ]), "MODE")
+        ["falling edge","FALLING"]
+      ]))
       .appendField("executes");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -123,9 +162,14 @@ Blockly.Blocks['no_suspend'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("do not suspend pin")
-      .appendField(new Blockly.FieldNumber(2), "PIN");
+      .appendField(new Blockly.FieldNumber(2));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
+
+</script>
+
+</body>
+</html>
