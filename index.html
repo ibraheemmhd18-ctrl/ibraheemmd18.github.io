@@ -1,210 +1,208 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>mBlock Style UI</title>
-
+  <title>mBlock Advanced Clone</title>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      display: flex;
-      height: 100vh;
-      background: #f5f5f5;
-    }
-
-    .sidebar {
-      width: 230px;
-      background: #fff;
-      border-right: 2px solid #ddd;
-      padding: 10px;
-    }
-
-    .menu div {
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .pin { background: #4a90e2; }
-    .serial { background: #7ed321; }
-    .data { background: #bd10e0; }
-    .inactive { background: #ccc; }
-
-    .block {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 20px;
-      cursor: grab;
-      color: white;
-      width: fit-content;
-    }
-
-    .blue { background: #4a90e2; }
-    .green { background: #7ed321; }
-    .purple { background: #bd10e0; }
-
-    select, input {
-      border-radius: 10px;
-      border: none;
-      padding: 3px;
-      margin: 0 5px;
-    }
-
-    .workspace {
-      flex: 1;
-      padding: 20px;
-    }
-
-    .dropzone {
-      background: #fff;
-      border: 2px dashed #ccc;
-      height: 100%;
-      padding: 10px;
-      overflow-y: auto;
-    }
-
-    .placed-block {
-      margin: 5px 0;
-      padding: 10px;
-      border-radius: 20px;
-      color: white;
-      width: fit-content;
-    }
-
-    .clear-btn {
-      background: red;
-      color: white;
-      padding: 8px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-bottom: 10px;
-      text-align: center;
-    }
+    body { margin: 0; font-family: Arial; }
+    #blocklyDiv { height: 100vh; width: 100%; }
   </style>
 </head>
 
 <body>
 
-<div class="sidebar">
+<div id="blocklyDiv"></div>
 
-  <div class="menu">
-    <div class="pin" onclick="showCategory('pin')">Pin</div>
-    <div class="serial inactive" onclick="showCategory('serial')">Serial</div>
-    <div class="data inactive" onclick="showCategory('data')">Data</div>
-  </div>
+<xml id="toolbox" style="display:none">
 
   <!-- PIN -->
-  <div id="pinBlocks">
-    <div class="block blue" draggable="true">
-      set digital pin 
-      <select>
-        <option>0</option><option>1</option><option>2</option>
-        <option>3</option><option>4</option><option>5</option>
-        <option>6</option><option>7</option><option>8</option>
-        <option>9</option><option>10</option>
-      </select>
-      output as 
-      <select>
-        <option>high</option>
-        <option>low</option>
-      </select>
-    </div>
+  <category name="Pin" colour="#4C97FF">
 
-    <div class="block blue" draggable="true">
-      read analog pin (A)
-      <select>
-        <option>0</option><option>1</option><option>2</option>
-        <option>3</option><option>4</option><option>5</option>
-      </select>
-    </div>
-  </div>
+    <block type="set_digital_pin"></block>
+    <block type="read_analog"></block>
+
+  </category>
 
   <!-- SERIAL -->
-  <div id="serialBlocks" style="display:none;">
-    <div class="block green" draggable="true">write hello to serial port</div>
-    <div class="block green" draggable="true">readable bytes from serial port</div>
-    <div class="block green" draggable="true">read a byte from serial port</div>
-  </div>
+  <category name="Serial" colour="#59C059">
+
+    <block type="serial_write"></block>
+    <block type="serial_read"></block>
+    <block type="serial_available"></block>
+
+  </category>
 
   <!-- DATA -->
-  <div id="dataBlocks" style="display:none;">
+  <category name="Data" colour="#9966FF">
 
-    <div class="block purple" draggable="true">
-      set variable 
-      <input type="text" value="x" size="3">
-      to 
-      <input type="number" value="0" size="3">
-    </div>
+    <block type="map_block"></block>
+    <block type="constrain_block"></block>
+    <block type="convert_block"></block>
+    <block type="ascii_char"></block>
+    <block type="ascii_number"></block>
 
-    <div class="block purple" draggable="true">
-      change variable 
-      <input type="text" value="x" size="3">
-      by 
-      <input type="number" value="1" size="3">
-    </div>
+  </category>
 
-    <div class="block purple" draggable="true">
-      variable 
-      <input type="text" value="x" size="3">
-    </div>
-
-  </div>
-
-</div>
-
-<!-- WORKSPACE -->
-<div class="workspace">
-
-  <div class="clear-btn" onclick="clearWorkspace()">🗑️ Clear All</div>
-
-  <div class="dropzone" id="workspace">
-    <h3>Drag blocks here 👇</h3>
-  </div>
-
-</div>
+</xml>
 
 <script>
 
-function showCategory(cat) {
-  document.getElementById('pinBlocks').style.display = (cat==='pin')?'block':'none';
-  document.getElementById('serialBlocks').style.display = (cat==='serial')?'block':'none';
-  document.getElementById('dataBlocks').style.display = (cat==='data')?'block':'none';
-}
+// ---------------- PIN BLOCK ----------------
+Blockly.Blocks['set_digital_pin'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("set digital pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["0","0"],["1","1"],["2","2"],["3","3"],
+        ["4","4"],["5","5"],["6","6"],["7","7"],
+        ["8","8"],["9","9"],["10","10"],["11","11"],
+        ["12","12"],["13","13"]
+      ]), "PIN")
+      .appendField("output as")
+      .appendField(new Blockly.FieldDropdown([
+        ["HIGH","HIGH"],
+        ["LOW","LOW"]
+      ]), "STATE");
 
-const blocks = document.querySelectorAll('.block');
-const workspace = document.getElementById('workspace');
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
 
-blocks.forEach(block => {
-  block.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/html', block.outerHTML);
-  });
+Blockly.Blocks['read_analog'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("read analog pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["A0","A0"],["A1","A1"],["A2","A2"],
+        ["A3","A3"],["A4","A4"],["A5","A5"]
+      ]), "PIN");
+
+    this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+// ---------------- SERIAL ----------------
+Blockly.Blocks['serial_write'] = {
+  init: function () {
+    this.appendValueInput("TEXT")
+      .appendField("write");
+    this.appendDummyInput()
+      .appendField("to serial port");
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#59C059");
+  }
+};
+
+Blockly.Blocks['serial_read'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("read a byte from serial");
+
+    this.setOutput(true);
+    this.setColour("#59C059");
+  }
+};
+
+Blockly.Blocks['serial_available'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("readable bytes from serial");
+
+    this.setOutput(true);
+    this.setColour("#59C059");
+  }
+};
+
+// ---------------- DATA ----------------
+Blockly.Blocks['map_block'] = {
+  init: function () {
+    this.appendValueInput("VALUE")
+      .appendField("map");
+    this.appendDummyInput()
+      .appendField("from")
+      .appendField(new Blockly.FieldNumber(0), "FROM1")
+      .appendField("to")
+      .appendField(new Blockly.FieldNumber(100), "FROM2");
+    this.appendDummyInput()
+      .appendField("to")
+      .appendField(new Blockly.FieldNumber(0), "TO1")
+      .appendField("to")
+      .appendField(new Blockly.FieldNumber(1000), "TO2");
+
+    this.setOutput(true);
+    this.setColour("#9966FF");
+  }
+};
+
+Blockly.Blocks['constrain_block'] = {
+  init: function () {
+    this.appendValueInput("VALUE")
+      .appendField("constrain");
+    this.appendDummyInput()
+      .appendField("between")
+      .appendField(new Blockly.FieldNumber(0), "MIN")
+      .appendField("and")
+      .appendField(new Blockly.FieldNumber(100), "MAX");
+
+    this.setOutput(true);
+    this.setColour("#9966FF");
+  }
+};
+
+Blockly.Blocks['convert_block'] = {
+  init: function () {
+    this.appendValueInput("VALUE");
+    this.appendDummyInput()
+      .appendField("converted to")
+      .appendField(new Blockly.FieldDropdown([
+        ["decimal","DECIMAL"],
+        ["string","STRING"],
+        ["whole number","INT"]
+      ]), "TYPE");
+
+    this.setOutput(true);
+    this.setColour("#9966FF");
+  }
+};
+
+Blockly.Blocks['ascii_char'] = {
+  init: function () {
+    this.appendValueInput("VALUE")
+      .appendField("ASCII to character");
+
+    this.setOutput(true);
+    this.setColour("#9966FF");
+  }
+};
+
+Blockly.Blocks['ascii_number'] = {
+  init: function () {
+    this.appendValueInput("VALUE")
+      .appendField("character to ASCII");
+
+    this.setOutput(true);
+    this.setColour("#9966FF");
+  }
+};
+
+// ---------------- WORKSPACE ----------------
+const workspace = Blockly.inject('blocklyDiv', {
+  toolbox: document.getElementById('toolbox'),
+  trashcan: true   // ✅ FIX delete issue
 });
 
-workspace.addEventListener('dragover', e => e.preventDefault());
-
-workspace.addEventListener('drop', e => {
-  e.preventDefault();
-
-  const data = e.dataTransfer.getData('text/html');
-
-  const newBlock = document.createElement('div');
-  newBlock.className = 'placed-block';
-  newBlock.innerHTML = data;
-
-  newBlock.ondblclick = function () {
-    this.remove();
-  };
-
-  workspace.appendChild(newBlock);
+// Enable delete with DEL key
+document.addEventListener("keydown", function(e){
+  if(e.key === "Delete" || e.key === "Backspace"){
+    const selected = workspace.getSelected();
+    if(selected) selected.dispose();
+  }
 });
-
-function clearWorkspace() {
-  workspace.innerHTML = "<h3>Drag blocks here 👇</h3>";
-}
 
 </script>
 
