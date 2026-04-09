@@ -1,3 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>mBlock Clone</title>
+
+<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
+<style>
+body { margin:0; font-family: Arial; }
+#workspace { height: 100vh; width: 100%; }
+</style>
+</head>
+
+<body>
+
+<div id="workspace"></div>
+
+<!-- TOOLBOX -->
+<xml id="toolbox" style="display:none">
+
+  <category name="Pin" colour="#4C97FF">
+    <block type="read_digital"></block>
+    <block type="read_analog"></block>
+    <block type="read_pulse"></block>
+    <block type="set_digital"></block>
+    <block type="set_pwm"></block>
+    <block type="play_tone"></block>
+    <block type="servo"></block>
+    <block type="suspend"></block>
+    <block type="nosuspend"></block>
+  </category>
+
+</xml>
+
+<script>
+/* WORKSPACE */
+var workspace = Blockly.inject('workspace', {
+  toolbox: document.getElementById('toolbox'),
+  trashcan: true
+});
+
 /* READ DIGITAL */
 Blockly.Blocks['read_digital'] = {
   init: function() {
@@ -66,7 +108,7 @@ Blockly.Blocks['set_digital'] = {
   }
 };
 
-/* SET PWM */
+/* PWM */
 Blockly.Blocks['set_pwm'] = {
   init: function() {
     this.appendDummyInput()
@@ -82,7 +124,7 @@ Blockly.Blocks['set_pwm'] = {
   }
 };
 
-/* PLAY TONE */
+/* TONE */
 Blockly.Blocks['play_tone'] = {
   init: function() {
     this.appendDummyInput()
@@ -149,8 +191,12 @@ Blockly.Blocks['nosuspend'] = {
       .appendField(new Blockly.FieldDropdown([
         ["2","2"],["3","3"]
       ]), "PIN");
-    this.setPreviousStatement(true);
+    this.setPreviousStatement(true);6 
     this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
+</script>
+
+</body>
+</html>
