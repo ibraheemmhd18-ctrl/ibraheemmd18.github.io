@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>mBlock Clone Working</title>
+<title>mBlock Full Clone</title>
 
 <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 
@@ -14,7 +14,6 @@ body {
   font-family: Arial;
 }
 
-/* LEFT PANEL */
 #leftPanel {
   width: 220px;
   background: #f5f5f5;
@@ -35,7 +34,6 @@ body {
   width: 80px;
 }
 
-/* BLOCK AREA */
 #blocklyDiv {
   flex: 1;
   height: 100%;
@@ -45,74 +43,83 @@ body {
 
 <body>
 
-<!-- LEFT -->
 <div id="leftPanel">
   <div id="stage">
     <img src="https://mblock.makeblock.com/assets/images/home/panda.png">
   </div>
-
   <b>Devices</b>
   <div style="background:white;padding:5px;margin-top:5px;border-radius:6px;">
     Arduino Uno
   </div>
 </div>
 
-<!-- BLOCKLY -->
 <div id="blocklyDiv"></div>
 
-<!-- TOOLBOX -->
 <xml id="toolbox" style="display:none">
 
-  <category name="Pin" colour="#4C97FF">
-    <block type="read_digital_pin"></block>
-    <block type="read_analog_pin"></block>
-    <block type="read_pulse_pin"></block>
-    <block type="set_digital_pin"></block>
-    <block type="set_pwm_pin"></block>
-    <block type="play_tone_pin"></block>
-    <block type="set_servo_pin"></block>
-    <block type="suspend_pin"></block>
-    <block type="no_suspend_pin"></block>
-  </category>
+<!-- PIN -->
+<category name="Pin" colour="#4C97FF">
+  <block type="read_digital_pin"></block>
+  <block type="read_analog_pin"></block>
+  <block type="read_pulse_pin"></block>
+  <block type="set_digital_pin"></block>
+  <block type="set_pwm_pin"></block>
+  <block type="play_tone_pin"></block>
+  <block type="set_servo_pin"></block>
+  <block type="suspend_pin"></block>
+  <block type="no_suspend_pin"></block>
+</category>
 
-  <category name="Serial" colour="#00C853">
-    <block type="serial_write"></block>
-    <block type="serial_read"></block>
-    <block type="serial_available"></block>
-  </category>
+<!-- SERIAL -->
+<category name="Serial" colour="#00C853">
+  <block type="serial_write"></block>
+  <block type="serial_read"></block>
+  <block type="serial_available"></block>
+</category>
 
-  <category name="Data" colour="#9C27B0">
-    <block type="map_value"></block>
-    <block type="constrain_value"></block>
-    <block type="convert_type"></block>
-    <block type="ascii_char"></block>
-    <block type="ascii_number"></block>
-  </category>
+<!-- DATA -->
+<category name="Data" colour="#9C27B0">
+  <block type="map_value"></block>
+  <block type="constrain_value"></block>
+  <block type="convert_type"></block>
+  <block type="ascii_char"></block>
+  <block type="ascii_number"></block>
+</category>
+
+<!-- SENSOR -->
+<category name="Sensor" colour="#5DADE2">
+  <block type="ultrasonic_sensor"></block>
+  <block type="timer_block"></block>
+  <block type="reset_timer"></block>
+</category>
 
 </xml>
 
 <script>
 const workspace = Blockly.inject('blocklyDiv', {
   toolbox: document.getElementById('toolbox'),
-  trashcan: true,
-  scrollbars: true
+  trashcan: true
 });
 </script>
 
 <script>
 
-/* PIN BLOCKS */
+/* -------- PIN -------- */
+
+function pinDropdown(){
+  return new Blockly.FieldDropdown([
+    ["0","0"],["1","1"],["2","2"],["3","3"],
+    ["4","4"],["5","5"],["6","6"],["7","7"],
+    ["8","8"],["9","9"],["10","10"],["11","11"],
+    ["12","12"],["13","13"]
+  ]);
+}
 
 Blockly.Blocks['read_digital_pin'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("read digital pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["0","0"],["1","1"],["2","2"],["3","3"],
-        ["4","4"],["5","5"],["6","6"],["7","7"],
-        ["8","8"],["9","9"],["10","10"],["11","11"],
-        ["12","12"],["13","13"]
-      ]));
+      .appendField(pinDropdown());
     this.setOutput(true);
     this.setColour("#4C97FF");
   }
@@ -135,12 +142,7 @@ Blockly.Blocks['read_pulse_pin'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("read pulse pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["0","0"],["1","1"],["2","2"],["3","3"],
-        ["4","4"],["5","5"],["6","6"],["7","7"],
-        ["8","8"],["9","9"],["10","10"],["11","11"],
-        ["12","12"],["13","13"]
-      ]))
+      .appendField(pinDropdown())
       .appendField("timeout")
       .appendField(new Blockly.FieldNumber(20000));
     this.setOutput(true);
@@ -152,12 +154,7 @@ Blockly.Blocks['set_digital_pin'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("set digital pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["0","0"],["1","1"],["2","2"],["3","3"],
-        ["4","4"],["5","5"],["6","6"],["7","7"],
-        ["8","8"],["9","9"],["10","10"],["11","11"],
-        ["12","12"],["13","13"]
-      ]))
+      .appendField(pinDropdown())
       .appendField("output as")
       .appendField(new Blockly.FieldDropdown([
         ["high","HIGH"],["low","LOW"]
@@ -172,10 +169,7 @@ Blockly.Blocks['set_pwm_pin'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("set PWM")
-      .appendField(new Blockly.FieldDropdown([
-        ["3","3"],["5","5"],["6","6"],["9","9"],
-        ["10","10"],["11","11"]
-      ]))
+      .appendField(pinDropdown())
       .appendField("output as")
       .appendField(new Blockly.FieldNumber(0,0,255));
     this.setPreviousStatement(true);
@@ -188,9 +182,7 @@ Blockly.Blocks['play_tone_pin'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("play pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["3","3"],["5","5"],["6","6"],["9","9"]
-      ]))
+      .appendField(pinDropdown())
       .appendField("note C4 for")
       .appendField(new Blockly.FieldNumber(0.25))
       .appendField("beats");
@@ -204,9 +196,7 @@ Blockly.Blocks['set_servo_pin'] = {
   init: function() {
     this.appendDummyInput()
       .appendField("set servo pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["3","3"],["5","5"],["6","6"],["9","9"]
-      ]))
+      .appendField(pinDropdown())
       .appendField("angle")
       .appendField(new Blockly.FieldNumber(90,0,180));
     this.setPreviousStatement(true);
@@ -237,7 +227,7 @@ Blockly.Blocks['no_suspend_pin'] = {
   }
 };
 
-/* SERIAL */
+/* -------- SERIAL -------- */
 
 Blockly.Blocks['serial_write'] = {
   init: function() {
@@ -269,7 +259,7 @@ Blockly.Blocks['serial_available'] = {
   }
 };
 
-/* DATA */
+/* -------- DATA -------- */
 
 Blockly.Blocks['map_value'] = {
   init: function() {
@@ -318,6 +308,39 @@ Blockly.Blocks['ascii_number'] = {
       .appendField("a converted ASCII number");
     this.setOutput(true);
     this.setColour("#9C27B0");
+  }
+};
+
+/* -------- SENSOR -------- */
+
+Blockly.Blocks['ultrasonic_sensor'] = {
+  init: function() {
+    this.appendDummyInput()
+      .appendField("read ultrasonic sensor trig pin")
+      .appendField(pinDropdown())
+      .appendField("echo pin")
+      .appendField(pinDropdown());
+    this.setOutput(true);
+    this.setColour("#5DADE2");
+  }
+};
+
+Blockly.Blocks['timer_block'] = {
+  init: function() {
+    this.appendDummyInput()
+      .appendField("timer");
+    this.setOutput(true);
+    this.setColour("#5DADE2");
+  }
+};
+
+Blockly.Blocks['reset_timer'] = {
+  init: function() {
+    this.appendDummyInput()
+      .appendField("reset timer");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#5DADE2");
   }
 };
 
