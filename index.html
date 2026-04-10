@@ -1,35 +1,36 @@
 <!DOCTYPE html>
-
 <html>
 <head>
-  <title>mBlock Style Arduino Blockly</title>
-  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-  <style>
-    body { margin:0; display:flex; height:100vh; }
-    #blocklyDiv { height:100%; width:80%; }
-    #controls {
-      width:20%;
-      background:#222;
-      color:white;
-      padding:10px;
-    }
-    button {
-      width:100%;
-      padding:10px;
-      margin-top:10px;
-      font-size:16px;
-    }
-  </style>
+<meta charset="utf-8">
+<title>Arduino mBlock Style</title>
+<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
+<style>
+body { margin:0; display:flex; height:100vh; }
+#blocklyDiv { height:100%; width:80%; }
+#controls {
+  width:20%;
+  background:#222;
+  color:white;
+  padding:10px;
+}
+button {
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+</style>
 </head>
+
 <body>
 
 <div id="blocklyDiv"></div>
 
 <div id="controls">
-  <h3>Arduino</h3>
-  <button onclick="setMode('upload')">UPLOAD MODE</button>
-  <button onclick="setMode('live')">LIVE MODE</button>
-  <button onclick="clearWorkspace()">CLEAR BLOCKS</button>
+<h3>Arduino</h3>
+<button onclick="alert('Upload Mode')">UPLOAD MODE</button>
+<button onclick="alert('Live Mode')">LIVE MODE</button>
+<button onclick="workspace.clear()">CLEAR BLOCKS</button>
 </div>
 
 <xml id="toolbox" style="display:none">
@@ -53,7 +54,7 @@
 </category>
 
 <!-- SERIAL -->
-<category name="Serial Port" colour="#00C853">
+<category name="Serial" colour="#00C853">
   <block type="serial_write"></block>
   <block type="serial_available"></block>
   <block type="serial_read"></block>
@@ -64,106 +65,4 @@
   <block type="ultrasonic"></block>
   <block type="timer"></block>
   <block type="reset_timer"></block>
-</category>
-
-<!-- DATA -->
-<category name="Data" colour="#9B59B6">
-  <block type="map_value"></block>
-  <block type="constrain"></block>
-  <block type="convert"></block>
-</category>
-
-</xml>
-
-<script>
-var workspace = Blockly.inject('blocklyDiv', {
-  toolbox: document.getElementById('toolbox'),
-  trashcan: true
-});
-
-let mode = "upload";
-
-function setMode(m){
-  mode = m;
-  alert("Mode: " + m);
-}
-
-function clearWorkspace(){
-  workspace.clear();
-}
-
-/* EVENTS */
-Blockly.Blocks['start'] = {
-  init: function() {
-    this.appendDummyInput().appendField("when Arduino Uno starts up");
-    this.setNextStatement(true);
-    this.setColour("#FFD500");
-  }
-};
-
-/* PIN BLOCKS */
-Blockly.Blocks['read_digital'] = {
-  init: function() {
-    this.appendDummyInput()
-      .appendField("read digital pin")
-      .appendField(new Blockly.FieldNumber(9,0,13),"PIN");
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['read_analog'] = {
-  init: function() {
-    this.appendDummyInput()
-      .appendField("read analog pin (A)")
-      .appendField(new Blockly.FieldNumber(0,0,5),"PIN");
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['read_pulse'] = {
-  init: function() {
-    this.appendDummyInput()
-      .appendField("read pulse pin")
-      .appendField(new Blockly.FieldNumber(13),"PIN")
-      .appendField("timeout")
-      .appendField(new Blockly.FieldNumber(20000),"TIME");
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['set_digital'] = {
-  init: function() {
-    this.appendDummyInput()
-      .appendField("set digital pin")
-      .appendField(new Blockly.FieldNumber(9,0,13),"PIN")
-      .appendField("output as")
-      .appendField(new Blockly.FieldDropdown([["high","HIGH"],["low","LOW"]]),"STATE");
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['set_pwm'] = {
-  init: function() {
-    this.appendDummyInput()
-      .appendField("set PWM")
-      .appendField(new Blockly.FieldNumber(5),"PIN")
-      .appendField("output as")
-      .appendField(new Blockly.FieldNumber(0,0,255),"VAL");
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['play_tone'] = {
-  init: function() {
-    this.appendDummyInput()
-      .appendField("play pin")
-      .appendField(new Blockly.FieldNumber(9),"PIN")
-      .appendField("with note C4 for")
-      .appendField(new
+</
