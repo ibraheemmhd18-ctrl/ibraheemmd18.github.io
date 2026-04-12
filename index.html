@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>mBlock Full Fixed</title>
+<title>mBlock Full Stable</title>
 
 <script src="https://cdn.jsdelivr.net/npm/blockly@10.3.1/blockly.min.js"></script>
 
@@ -50,10 +50,14 @@ button {
 
 <!-- CONTROL -->
 <category name="Control" colour="#FFAB19">
-  <block type="controls_if"></block>
   <block type="controls_repeat_ext"></block>
   <block type="forever"></block>
+  <block type="controls_whileUntil"></block>
+  <block type="controls_if">
+    <mutation else="1"></mutation>
+  </block>
   <block type="wait_seconds"></block>
+  <block type="wait_until"></block>
 </category>
 
 <!-- OPERATORS -->
@@ -84,7 +88,7 @@ Blockly.Blocks['start'] = {
   }
 };
 
-/* PIN BLOCKS */
+/* PIN */
 Blockly.Blocks['read_digital'] = {
   init:function(){
     this.appendDummyInput()
@@ -145,6 +149,14 @@ Blockly.Blocks['servo'] = {
 };
 
 /* CONTROL */
+Blockly.Blocks['forever'] = {
+  init:function(){
+    this.appendStatementInput("DO")
+    .appendField("forever");
+    this.setColour("#FFAB19");
+  }
+};
+
 Blockly.Blocks['wait_seconds'] = {
   init:function(){
     this.appendDummyInput()
@@ -157,10 +169,12 @@ Blockly.Blocks['wait_seconds'] = {
   }
 };
 
-Blockly.Blocks['forever'] = {
+Blockly.Blocks['wait_until'] = {
   init:function(){
-    this.appendStatementInput("DO")
-    .appendField("forever");
+    this.appendValueInput("COND")
+    .appendField("wait until");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
     this.setColour("#FFAB19");
   }
 };
