@@ -2,17 +2,17 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>mBlock Full Working</title>
+<title>mBlock Full System</title>
 
-<!-- ✅ Stable Blockly (important) -->
+<!-- ✅ STABLE BLOCKLY -->
 <script src="https://cdn.jsdelivr.net/npm/blockly@10.3.1/blockly.min.js"></script>
 
 <style>
 body { margin:0; display:flex; height:100vh; }
 
 #blocklyDiv {
-  height:100%;
   width:80%;
+  height:100%;
 }
 
 #controls {
@@ -37,12 +37,11 @@ button {
 
 <div id="controls">
   <h3>Arduino</h3>
-  <button onclick="alert('Upload Mode')">UPLOAD MODE</button>
-  <button onclick="alert('Live Mode')">LIVE MODE</button>
-  <button onclick="workspace.clear()">CLEAR BLOCKS</button>
+  <button onclick="alert('Upload Mode')">UPLOAD</button>
+  <button onclick="alert('Live Mode')">LIVE</button>
+  <button onclick="workspace.clear()">CLEAR</button>
 </div>
 
-<!-- TOOLBOX -->
 <xml id="toolbox" style="display:none">
 
 <!-- EVENTS -->
@@ -53,32 +52,42 @@ button {
 <!-- PIN -->
 <category name="Pin" colour="#4C97FF">
   <block type="read_digital"></block>
-  <block type="read_analog"></block>
   <block type="set_digital"></block>
   <block type="set_pwm"></block>
-  <block type="servo"></block>
 </category>
 
 <!-- SERIAL -->
 <category name="Serial" colour="#00C853">
   <block type="serial_write"></block>
-  <block type="serial_available"></block>
-  <block type="serial_read"></block>
 </category>
 
 <!-- SENSOR -->
 <category name="Sensor" colour="#5DADE2">
   <block type="ultrasonic"></block>
-  <block type="timer"></block>
-  <block type="reset_timer"></block>
 </category>
 
 <!-- DATA -->
 <category name="Data" colour="#9B59B6">
   <block type="map_value"></block>
-  <block type="constrain"></block>
-  <block type="convert"></block>
 </category>
+
+<!-- CONTROL -->
+<category name="Control" colour="#FFAB19">
+  <block type="controls_repeat_ext"></block>
+  <block type="forever"></block>
+  <block type="controls_if"></block>
+  <block type="wait_seconds"></block>
+</category>
+
+<!-- OPERATORS -->
+<category name="Operators" colour="#40BF4A">
+  <block type="math_number"></block>
+  <block type="math_arithmetic"></block>
+  <block type="logic_compare"></block>
+</category>
+
+<!-- VARIABLES -->
+<category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
 
 </xml>
 
@@ -91,7 +100,7 @@ var workspace = Blockly.inject('blocklyDiv', {
 /* EVENTS */
 Blockly.Blocks['start'] = {
   init:function(){
-    this.appendDummyInput().appendField("when Arduino Uno starts up");
+    this.appendDummyInput().appendField("when Arduino starts");
     this.setNextStatement(true);
     this.setColour("#FFD500");
   }
@@ -108,21 +117,11 @@ Blockly.Blocks['read_digital'] = {
   }
 };
 
-Blockly.Blocks['read_analog'] = {
-  init:function(){
-    this.appendDummyInput()
-    .appendField("read analog pin (A)")
-    .appendField(new Blockly.FieldNumber(0,0,5));
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
 Blockly.Blocks['set_digital'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("set digital pin")
-    .appendField(new Blockly.FieldNumber(9,0,13))
+    .appendField("set pin")
+    .appendField(new Blockly.FieldNumber(9))
     .appendField("as")
     .appendField(new Blockly.FieldDropdown([["HIGH","HIGH"],["LOW","LOW"]]));
     this.setPreviousStatement(true);
@@ -134,23 +133,10 @@ Blockly.Blocks['set_digital'] = {
 Blockly.Blocks['set_pwm'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("set PWM")
+    .appendField("set PWM pin")
     .appendField(new Blockly.FieldNumber(5))
     .appendField("value")
     .appendField(new Blockly.FieldNumber(0,0,255));
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['servo'] = {
-  init:function(){
-    this.appendDummyInput()
-    .appendField("set servo pin")
-    .appendField(new Blockly.FieldNumber(9))
-    .appendField("angle")
-    .appendField(new Blockly.FieldNumber(90,0,180));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#4C97FF");
@@ -170,22 +156,6 @@ Blockly.Blocks['serial_write'] = {
   }
 };
 
-Blockly.Blocks['serial_available'] = {
-  init:function(){
-    this.appendDummyInput().appendField("serial available bytes");
-    this.setOutput(true);
-    this.setColour("#00C853");
-  }
-};
-
-Blockly.Blocks['serial_read'] = {
-  init:function(){
-    this.appendDummyInput().appendField("read serial byte");
-    this.setOutput(true);
-    this.setColour("#00C853");
-  }
-};
-
 /* SENSOR */
 Blockly.Blocks['ultrasonic'] = {
   init:function(){
@@ -199,55 +169,35 @@ Blockly.Blocks['ultrasonic'] = {
   }
 };
 
-Blockly.Blocks['timer'] = {
-  init:function(){
-    this.appendDummyInput().appendField("timer");
-    this.setOutput(true);
-    this.setColour("#5DADE2");
-  }
-};
-
-Blockly.Blocks['reset_timer'] = {
-  init:function(){
-    this.appendDummyInput().appendField("reset timer");
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#5DADE2");
-  }
-};
-
 /* DATA */
 Blockly.Blocks['map_value'] = {
   init:function(){
-    this.appendDummyInput()
-    .appendField("map value");
+    this.appendDummyInput().appendField("map value");
     this.setOutput(true);
     this.setColour("#9B59B6");
   }
 };
 
-Blockly.Blocks['constrain'] = {
+/* CONTROL */
+Blockly.Blocks['wait_seconds'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("constrain value");
-    this.setOutput(true);
-    this.setColour("#9B59B6");
+    .appendField("wait")
+    .appendField(new Blockly.FieldNumber(1))
+    .appendField("seconds");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#FFAB19");
   }
 };
 
-Blockly.Blocks['convert'] = {
+Blockly.Blocks['forever'] = {
   init:function(){
-    this.appendDummyInput()
-    .appendField("convert to")
-    .appendField(new Blockly.FieldDropdown([
-      ["decimal","DEC"],
-      ["string","STR"],
-      ["whole number","INT"]
-    ]));
-    this.setOutput(true);
-    this.setColour("#9B59B6");
+    this.appendStatementInput("DO").appendField("forever");
+    this.setColour("#FFAB19");
   }
 };
+
 </script>
 
 </body>
