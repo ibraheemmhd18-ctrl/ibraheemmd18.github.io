@@ -2,14 +2,32 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Blockly Fix</title>
+<title>mBlock Full Working</title>
 
-<!-- ✅ DIFFERENT CDN (IMPORTANT FIX) -->
+<!-- ✅ Stable Blockly (important) -->
 <script src="https://cdn.jsdelivr.net/npm/blockly@10.3.1/blockly.min.js"></script>
 
 <style>
-body { margin:0; }
-#blocklyDiv { height:100vh; width:100%; }
+body { margin:0; display:flex; height:100vh; }
+
+#blocklyDiv {
+  height:100%;
+  width:80%;
+}
+
+#controls {
+  width:20%;
+  background:#222;
+  color:white;
+  padding:10px;
+}
+
+button {
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  font-size:16px;
+}
 </style>
 </head>
 
@@ -17,16 +35,219 @@ body { margin:0; }
 
 <div id="blocklyDiv"></div>
 
+<div id="controls">
+  <h3>Arduino</h3>
+  <button onclick="alert('Upload Mode')">UPLOAD MODE</button>
+  <button onclick="alert('Live Mode')">LIVE MODE</button>
+  <button onclick="workspace.clear()">CLEAR BLOCKS</button>
+</div>
+
+<!-- TOOLBOX -->
 <xml id="toolbox" style="display:none">
-  <category name="Test" colour="#ff0000">
-    <block type="controls_repeat_ext"></block>
-  </category>
+
+<!-- EVENTS -->
+<category name="Events" colour="#FFD500">
+  <block type="start"></block>
+</category>
+
+<!-- PIN -->
+<category name="Pin" colour="#4C97FF">
+  <block type="read_digital"></block>
+  <block type="read_analog"></block>
+  <block type="set_digital"></block>
+  <block type="set_pwm"></block>
+  <block type="servo"></block>
+</category>
+
+<!-- SERIAL -->
+<category name="Serial" colour="#00C853">
+  <block type="serial_write"></block>
+  <block type="serial_available"></block>
+  <block type="serial_read"></block>
+</category>
+
+<!-- SENSOR -->
+<category name="Sensor" colour="#5DADE2">
+  <block type="ultrasonic"></block>
+  <block type="timer"></block>
+  <block type="reset_timer"></block>
+</category>
+
+<!-- DATA -->
+<category name="Data" colour="#9B59B6">
+  <block type="map_value"></block>
+  <block type="constrain"></block>
+  <block type="convert"></block>
+</category>
+
 </xml>
 
 <script>
-Blockly.inject('blocklyDiv', {
-  toolbox: document.getElementById('toolbox')
+var workspace = Blockly.inject('blocklyDiv', {
+  toolbox: document.getElementById('toolbox'),
+  trashcan:true
 });
+
+/* EVENTS */
+Blockly.Blocks['start'] = {
+  init:function(){
+    this.appendDummyInput().appendField("when Arduino Uno starts up");
+    this.setNextStatement(true);
+    this.setColour("#FFD500");
+  }
+};
+
+/* PIN */
+Blockly.Blocks['read_digital'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("read digital pin")
+    .appendField(new Blockly.FieldNumber(9,0,13));
+    this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['read_analog'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("read analog pin (A)")
+    .appendField(new Blockly.FieldNumber(0,0,5));
+    this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['set_digital'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("set digital pin")
+    .appendField(new Blockly.FieldNumber(9,0,13))
+    .appendField("as")
+    .appendField(new Blockly.FieldDropdown([["HIGH","HIGH"],["LOW","LOW"]]));
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['set_pwm'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("set PWM")
+    .appendField(new Blockly.FieldNumber(5))
+    .appendField("value")
+    .appendField(new Blockly.FieldNumber(0,0,255));
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['servo'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("set servo pin")
+    .appendField(new Blockly.FieldNumber(9))
+    .appendField("angle")
+    .appendField(new Blockly.FieldNumber(90,0,180));
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+/* SERIAL */
+Blockly.Blocks['serial_write'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("write")
+    .appendField(new Blockly.FieldTextInput("hello"))
+    .appendField("to serial");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#00C853");
+  }
+};
+
+Blockly.Blocks['serial_available'] = {
+  init:function(){
+    this.appendDummyInput().appendField("serial available bytes");
+    this.setOutput(true);
+    this.setColour("#00C853");
+  }
+};
+
+Blockly.Blocks['serial_read'] = {
+  init:function(){
+    this.appendDummyInput().appendField("read serial byte");
+    this.setOutput(true);
+    this.setColour("#00C853");
+  }
+};
+
+/* SENSOR */
+Blockly.Blocks['ultrasonic'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("ultrasonic trig")
+    .appendField(new Blockly.FieldNumber(1))
+    .appendField("echo")
+    .appendField(new Blockly.FieldNumber(1));
+    this.setOutput(true);
+    this.setColour("#5DADE2");
+  }
+};
+
+Blockly.Blocks['timer'] = {
+  init:function(){
+    this.appendDummyInput().appendField("timer");
+    this.setOutput(true);
+    this.setColour("#5DADE2");
+  }
+};
+
+Blockly.Blocks['reset_timer'] = {
+  init:function(){
+    this.appendDummyInput().appendField("reset timer");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#5DADE2");
+  }
+};
+
+/* DATA */
+Blockly.Blocks['map_value'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("map value");
+    this.setOutput(true);
+    this.setColour("#9B59B6");
+  }
+};
+
+Blockly.Blocks['constrain'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("constrain value");
+    this.setOutput(true);
+    this.setColour("#9B59B6");
+  }
+};
+
+Blockly.Blocks['convert'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("convert to")
+    .appendField(new Blockly.FieldDropdown([
+      ["decimal","DEC"],
+      ["string","STR"],
+      ["whole number","INT"]
+    ]));
+    this.setOutput(true);
+    this.setColour("#9B59B6");
+  }
+};
 </script>
 
 </body>
