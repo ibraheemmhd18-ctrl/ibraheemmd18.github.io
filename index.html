@@ -2,31 +2,23 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>mBlock Full System</title>
+<title>mBlock Full Fixed</title>
 
-<!-- ✅ STABLE BLOCKLY -->
 <script src="https://cdn.jsdelivr.net/npm/blockly@10.3.1/blockly.min.js"></script>
 
 <style>
 body { margin:0; display:flex; height:100vh; }
-
-#blocklyDiv {
-  width:80%;
-  height:100%;
-}
-
+#blocklyDiv { width:80%; height:100%; }
 #controls {
   width:20%;
   background:#222;
   color:white;
   padding:10px;
 }
-
 button {
   width:100%;
   padding:10px;
   margin-top:10px;
-  font-size:16px;
 }
 </style>
 </head>
@@ -36,10 +28,8 @@ button {
 <div id="blocklyDiv"></div>
 
 <div id="controls">
-  <h3>Arduino</h3>
-  <button onclick="alert('Upload Mode')">UPLOAD</button>
-  <button onclick="alert('Live Mode')">LIVE</button>
-  <button onclick="workspace.clear()">CLEAR</button>
+<h3>Arduino</h3>
+<button onclick="workspace.clear()">CLEAR</button>
 </div>
 
 <xml id="toolbox" style="display:none">
@@ -52,30 +42,17 @@ button {
 <!-- PIN -->
 <category name="Pin" colour="#4C97FF">
   <block type="read_digital"></block>
+  <block type="read_analog"></block>
   <block type="set_digital"></block>
   <block type="set_pwm"></block>
-</category>
-
-<!-- SERIAL -->
-<category name="Serial" colour="#00C853">
-  <block type="serial_write"></block>
-</category>
-
-<!-- SENSOR -->
-<category name="Sensor" colour="#5DADE2">
-  <block type="ultrasonic"></block>
-</category>
-
-<!-- DATA -->
-<category name="Data" colour="#9B59B6">
-  <block type="map_value"></block>
+  <block type="servo"></block>
 </category>
 
 <!-- CONTROL -->
 <category name="Control" colour="#FFAB19">
+  <block type="controls_if"></block>
   <block type="controls_repeat_ext"></block>
   <block type="forever"></block>
-  <block type="controls_if"></block>
   <block type="wait_seconds"></block>
 </category>
 
@@ -84,6 +61,7 @@ button {
   <block type="math_number"></block>
   <block type="math_arithmetic"></block>
   <block type="logic_compare"></block>
+  <block type="logic_boolean"></block>
 </category>
 
 <!-- VARIABLES -->
@@ -106,12 +84,22 @@ Blockly.Blocks['start'] = {
   }
 };
 
-/* PIN */
+/* PIN BLOCKS */
 Blockly.Blocks['read_digital'] = {
   init:function(){
     this.appendDummyInput()
     .appendField("read digital pin")
     .appendField(new Blockly.FieldNumber(9,0,13));
+    this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['read_analog'] = {
+  init:function(){
+    this.appendDummyInput()
+    .appendField("read analog pin A")
+    .appendField(new Blockly.FieldNumber(0,0,5));
     this.setOutput(true);
     this.setColour("#4C97FF");
   }
@@ -143,38 +131,16 @@ Blockly.Blocks['set_pwm'] = {
   }
 };
 
-/* SERIAL */
-Blockly.Blocks['serial_write'] = {
+Blockly.Blocks['servo'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("write")
-    .appendField(new Blockly.FieldTextInput("hello"))
-    .appendField("to serial");
+    .appendField("set servo pin")
+    .appendField(new Blockly.FieldNumber(9))
+    .appendField("angle")
+    .appendField(new Blockly.FieldNumber(90,0,180));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#00C853");
-  }
-};
-
-/* SENSOR */
-Blockly.Blocks['ultrasonic'] = {
-  init:function(){
-    this.appendDummyInput()
-    .appendField("ultrasonic trig")
-    .appendField(new Blockly.FieldNumber(1))
-    .appendField("echo")
-    .appendField(new Blockly.FieldNumber(1));
-    this.setOutput(true);
-    this.setColour("#5DADE2");
-  }
-};
-
-/* DATA */
-Blockly.Blocks['map_value'] = {
-  init:function(){
-    this.appendDummyInput().appendField("map value");
-    this.setOutput(true);
-    this.setColour("#9B59B6");
+    this.setColour("#4C97FF");
   }
 };
 
@@ -193,7 +159,8 @@ Blockly.Blocks['wait_seconds'] = {
 
 Blockly.Blocks['forever'] = {
   init:function(){
-    this.appendStatementInput("DO").appendField("forever");
+    this.appendStatementInput("DO")
+    .appendField("forever");
     this.setColour("#FFAB19");
   }
 };
