@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>mBlock Full Stable</title>
+<title>Arduino Blockly Full System</title>
 
 <script src="https://cdn.jsdelivr.net/npm/blockly@10.3.1/blockly.min.js"></script>
 
@@ -20,6 +20,11 @@ button {
   padding:10px;
   margin-top:10px;
 }
+textarea {
+  width:100%;
+  height:200px;
+  margin-top:10px;
+}
 </style>
 </head>
 
@@ -29,46 +34,40 @@ button {
 
 <div id="controls">
 <h3>Arduino</h3>
+<button onclick="generateCode()">GENERATE CODE</button>
 <button onclick="workspace.clear()">CLEAR</button>
+<textarea id="codeArea"></textarea>
 </div>
 
 <xml id="toolbox" style="display:none">
 
-<!-- EVENTS -->
 <category name="Events" colour="#FFD500">
   <block type="start"></block>
 </category>
 
-<!-- PIN -->
 <category name="Pin" colour="#4C97FF">
-  <block type="read_digital"></block>
-  <block type="read_analog"></block>
   <block type="set_digital"></block>
-  <block type="set_pwm"></block>
+  <block type="read_analog"></block>
   <block type="servo"></block>
 </category>
 
-<!-- CONTROL -->
+<category name="Sensor" colour="#5DADE2">
+  <block type="ultrasonic"></block>
+</category>
+
 <category name="Control" colour="#FFAB19">
-  <block type="controls_repeat_ext"></block>
   <block type="forever"></block>
-  <block type="controls_whileUntil"></block>
   <block type="controls_if">
     <mutation else="1"></mutation>
   </block>
   <block type="wait_seconds"></block>
-  <block type="wait_until"></block>
 </category>
 
-<!-- OPERATORS -->
 <category name="Operators" colour="#40BF4A">
   <block type="math_number"></block>
-  <block type="math_arithmetic"></block>
   <block type="logic_compare"></block>
-  <block type="logic_boolean"></block>
 </category>
 
-<!-- VARIABLES -->
 <category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
 
 </xml>
@@ -89,26 +88,6 @@ Blockly.Blocks['start'] = {
 };
 
 /* PIN */
-Blockly.Blocks['read_digital'] = {
-  init:function(){
-    this.appendDummyInput()
-    .appendField("read digital pin")
-    .appendField(new Blockly.FieldNumber(9,0,13));
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['read_analog'] = {
-  init:function(){
-    this.appendDummyInput()
-    .appendField("read analog pin A")
-    .appendField(new Blockly.FieldNumber(0,0,5));
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
 Blockly.Blocks['set_digital'] = {
   init:function(){
     this.appendDummyInput()
@@ -122,15 +101,12 @@ Blockly.Blocks['set_digital'] = {
   }
 };
 
-Blockly.Blocks['set_pwm'] = {
+Blockly.Blocks['read_analog'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("set PWM pin")
-    .appendField(new Blockly.FieldNumber(5))
-    .appendField("value")
-    .appendField(new Blockly.FieldNumber(0,0,255));
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
+    .appendField("read analog A")
+    .appendField(new Blockly.FieldNumber(0));
+    this.setOutput(true);
     this.setColour("#4C97FF");
   }
 };
@@ -138,47 +114,114 @@ Blockly.Blocks['set_pwm'] = {
 Blockly.Blocks['servo'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("set servo pin")
+    .appendField("servo pin")
     .appendField(new Blockly.FieldNumber(9))
     .appendField("angle")
-    .appendField(new Blockly.FieldNumber(90,0,180));
+    .appendField(new Blockly.FieldNumber(90));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
 
+/* SENSOR */
+Blockly.Blocks['ultrasonic'] = {
+  init:function(){
+    this.appendDummyInput()
+      .appendField("ultrasonic trig")
+      .appendField(new Blockly.FieldNumber(2))
+      .appendField("echo")
+      .appendField(new Blockly.FieldNumber(3));
+    this.setOutput(true);
+    this.setColour("#5DADE2");
+  }
+};
+
 /* CONTROL */
 Blockly.Blocks['forever'] = {
   init:function(){
-    this.appendStatementInput("DO")
-    .appendField("forever");
+    this.appendStatementInput("DO").appendField("forever");
     this.setColour("#FFAB19");
+    this.setPreviousStatement(false);
+    this.setNextStatement(false);
   }
 };
 
 Blockly.Blocks['wait_seconds'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("wait")
-    .appendField(new Blockly.FieldNumber(1))
-    .appendField("seconds");
+      .appendField("wait")
+      .appendField(new Blockly.FieldNumber(1))
+      .appendField("seconds");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#FFAB19");
   }
 };
 
-Blockly.Blocks['wait_until'] = {
-  init:function(){
-    this.appendValueInput("COND")
-    .appendField("wait until");
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#FFAB19");
-  }
-};
+/* GENERATORS (ARDUINO CODE) */
 
+function generateCode() {
+  let code = "";
+
+  let blocks = workspace.getTopBlocks(true);
+
+  blocks.forEach(block => {
+    code += generateBlockCode(block);
+  });
+
+  let finalCode = `
+#include <Servo.h>
+
+Servo servo_9;
+
+void setup() {
+  pinMode(9, OUTPUT);
+  servo_9.attach(9);
+}
+
+void loop() {
+${code}
+}
+`;
+
+  document.getElementById("codeArea").value = finalCode;
+}
+
+function generateBlockCode(block) {
+  let code = "";
+
+  switch(block.type) {
+
+    case "set_digital":
+      code += "digitalWrite(9, HIGH);\n";
+      break;
+
+    case "servo":
+      code += "servo_9.write(90);\n";
+      break;
+
+    case "wait_seconds":
+      code += "delay(1000);\n";
+      break;
+
+    case "forever":
+      let inner = "";
+      let child = block.getInputTargetBlock("DO");
+      while(child){
+        inner += generateBlockCode(child);
+        child = child.getNextBlock();
+      }
+      code += "while(true){\n" + inner + "}\n";
+      break;
+  }
+
+  if(block.getNextBlock()){
+    code += generateBlockCode(block.getNextBlock());
+  }
+
+  return code;
+}
 </script>
 
 </body>
