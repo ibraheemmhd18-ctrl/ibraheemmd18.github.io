@@ -2,16 +2,34 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>mBlock FULL Clone</title>
+<title>mBlock Style Arduino</title>
 
 <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 
 <style>
-body {margin:0; display:flex; height:100vh;}
+body {margin:0; display:flex; height:100vh; font-family:sans-serif;}
 #blocklyDiv {width:75%; height:100%;}
-#panel {width:25%; background:#222; color:white; padding:10px;}
-button {width:100%; padding:10px; margin-top:10px;}
-textarea {width:100%; height:250px;}
+#panel {
+  width:25%;
+  background:#1f1f1f;
+  color:white;
+  padding:12px;
+}
+button {
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  background:#444;
+  color:red;
+  border:none;
+}
+textarea {
+  width:100%;
+  height:230px;
+  margin-top:10px;
+  background:#111;
+  color:#0f0;
+}
 </style>
 </head>
 
@@ -28,17 +46,14 @@ textarea {width:100%; height:250px;}
 
 <xml id="toolbox" style="display:none">
 
-<!-- PIN -->
 <category name="Pin" colour="#4C97FF">
+  <block type="read_digital"></block>
+  <block type="read_analog"></block>
   <block type="set_digital"></block>
   <block type="set_pwm"></block>
   <block type="set_servo"></block>
-  <block type="read_digital"></block>
-  <block type="read_analog"></block>
-  <block type="pulse"></block>
 </category>
 
-<!-- CONTROL -->
 <category name="Control" colour="#F39C12">
   <block type="controls_if"></block>
   <block type="controls_repeat_ext"></block>
@@ -46,99 +61,130 @@ textarea {width:100%; height:250px;}
   <block type="wait"></block>
 </category>
 
-<!-- OPERATORS -->
 <category name="Operators" colour="#27AE60">
   <block type="math_number"></block>
-  <block type="math_arithmetic"></block>
   <block type="logic_compare"></block>
+  <block type="math_arithmetic"></block>
 </category>
 
-<!-- DATA -->
-<category name="Data" colour="#9B59B6">
-  <block type="text"></block>
-  <block type="variables_get"></block>
-  <block type="variables_set"></block>
-</category>
-
-<!-- SERIAL -->
-<category name="Serial" colour="#2ECC71">
-  <block type="serial_write"></block>
-  <block type="serial_read"></block>
-</category>
-
-<!-- SENSOR -->
-<category name="Sensor" colour="#5DADE2">
-  <block type="ultrasonic"></block>
-</category>
-
-<!-- EVENTS -->
-<category name="Events" colour="#F1C40F">
-  <block type="start"></block>
-</category>
+<category name="Data" colour="#9B59B6" custom="VARIABLE"></category>
 
 </xml>
 
 <script>
 
-/* INIT */
+// INIT
 var workspace = Blockly.inject('blocklyDiv',{
-  toolbox:document.getElementById('toolbox'),
+  toolbox: document.getElementById('toolbox'),
   trashcan:true
 });
 
-/* PIN */
-Blockly.Blocks['set_digital'] = {
-  init(){this.appendDummyInput().appendField("set pin 13 HIGH"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#4C97FF");}
-};
-Blockly.Blocks['set_pwm'] = {
-  init(){this.appendDummyInput().appendField("PWM pin 5 value 128"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#4C97FF");}
-};
-Blockly.Blocks['set_servo'] = {
-  init(){this.appendDummyInput().appendField("servo pin 9 angle 90"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#4C97FF");}
-};
+// PIN LIST (0–13)
+let pinList = [];
+for(let i=0;i<=13;i++){ pinList.push([i.toString(), i.toString()]); }
+
+// ANALOG LIST
+let analogList = [["A0","0"],["A1","1"],["A2","2"],["A3","3"],["A4","4"],["A5","5"]];
+
+// READ DIGITAL
 Blockly.Blocks['read_digital'] = {
-  init(){this.appendDummyInput().appendField("read digital pin 2"); this.setOutput(true); this.setColour("#4C97FF");}
+  init(){
+    this.appendDummyInput()
+      .appendField("read digital pin")
+      .appendField(new Blockly.FieldDropdown(pinList), "PIN");
+    this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
 };
+
+// READ ANALOG
 Blockly.Blocks['read_analog'] = {
-  init(){this.appendDummyInput().appendField("read analog A0"); this.setOutput(true); this.setColour("#4C97FF");}
-};
-Blockly.Blocks['pulse'] = {
-  init(){this.appendDummyInput().appendField("read pulse pin 7"); this.setOutput(true); this.setColour("#4C97FF");}
+  init(){
+    this.appendDummyInput()
+      .appendField("read analog pin")
+      .appendField(new Blockly.FieldDropdown(analogList), "PIN");
+    this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
 };
 
-/* CONTROL */
+// SET DIGITAL
+Blockly.Blocks['set_digital'] = {
+  init(){
+    this.appendDummyInput()
+      .appendField("set digital pin")
+      .appendField(new Blockly.FieldDropdown(pinList), "PIN")
+      .appendField("output as")
+      .appendField(new Blockly.FieldDropdown([
+        ["HIGH","HIGH"],
+        ["LOW","LOW"]
+      ]), "STATE");
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+// PWM
+Blockly.Blocks['set_pwm'] = {
+  init(){
+    this.appendDummyInput()
+      .appendField("set PWM pin")
+      .appendField(new Blockly.FieldDropdown(pinList), "PIN")
+      .appendField("value")
+      .appendField(new Blockly.FieldNumber(0,0,255), "VALUE");
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+// SERVO
+Blockly.Blocks['set_servo'] = {
+  init(){
+    this.appendDummyInput()
+      .appendField("set servo pin")
+      .appendField(new Blockly.FieldDropdown(pinList), "PIN")
+      .appendField("angle")
+      .appendField(new Blockly.FieldNumber(90,0,180), "ANGLE");
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+// FOREVER
 Blockly.Blocks['forever'] = {
-  init(){this.appendStatementInput("DO").appendField("forever"); this.setColour("#F39C12");}
+  init(){
+    this.appendStatementInput("DO").appendField("forever");
+    this.setColour("#F39C12");
+  }
 };
+
+// WAIT
 Blockly.Blocks['wait'] = {
-  init(){this.appendDummyInput().appendField("wait 1 sec"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#F39C12");}
+  init(){
+    this.appendDummyInput()
+      .appendField("wait")
+      .appendField(new Blockly.FieldNumber(1,0), "TIME")
+      .appendField("seconds");
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#F39C12");
+  }
 };
 
-/* EVENTS */
-Blockly.Blocks['start'] = {
-  init(){this.appendDummyInput().appendField("when Arduino starts"); this.setNextStatement(true); this.setColour("#F1C40F");}
-};
-
-/* SERIAL */
-Blockly.Blocks['serial_write'] = {
-  init(){this.appendDummyInput().appendField("write hello"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#2ECC71");}
-};
-Blockly.Blocks['serial_read'] = {
-  init(){this.appendDummyInput().appendField("read serial"); this.setOutput(true); this.setColour("#2ECC71");}
-};
-
-/* SENSOR */
-Blockly.Blocks['ultrasonic'] = {
-  init(){this.appendDummyInput().appendField("ultrasonic trig 2 echo 3"); this.setOutput(true); this.setColour("#5DADE2");}
-};
-
-/* GENERATE CODE */
+// GENERATE CODE
 function generateCode(){
 
 let code="";
 let blocks=workspace.getTopBlocks(true);
 
-blocks.forEach(b=>{code+=gen(b);});
+blocks.forEach(b=>{ code+=gen(b); });
 
 let final=`
 #include <Servo.h>
@@ -147,7 +193,6 @@ Servo servo1;
 void setup(){
 Serial.begin(9600);
 servo1.attach(9);
-pinMode(13,OUTPUT);
 }
 
 void loop(){
@@ -158,6 +203,7 @@ ${code}
 document.getElementById("code").value=final;
 }
 
+// GENERATOR
 function gen(block){
 
 let code="";
@@ -165,23 +211,19 @@ let code="";
 switch(block.type){
 
 case "set_digital":
-code+="digitalWrite(13,HIGH);\n";
+code+=`digitalWrite(${block.getFieldValue("PIN")}, ${block.getFieldValue("STATE")});\n`;
 break;
 
 case "set_pwm":
-code+="analogWrite(5,128);\n";
+code+=`analogWrite(${block.getFieldValue("PIN")}, ${block.getFieldValue("VALUE")});\n`;
 break;
 
 case "set_servo":
-code+="servo1.write(90);\n";
-break;
-
-case "serial_write":
-code+='Serial.println("ASsalamualikum sir .... welcome to Serial monitor Serial.print ln");\n';
+code+=`servo1.write(${block.getFieldValue("ANGLE")});\n`;
 break;
 
 case "wait":
-code+="delay(1000);\n";
+code+=`delay(${block.getFieldValue("TIME")*1000});\n`;
 break;
 
 case "forever":
