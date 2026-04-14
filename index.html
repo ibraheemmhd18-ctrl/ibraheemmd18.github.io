@@ -1,120 +1,124 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>mBlock Style Arduino</title>
+  <meta charset="utf-8">
+  <title>Red mBlock Style Arduino</title>
 
-<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 
-<style>
-body {margin:0; display:flex; height:100vh; font-family:sans-serif;}
-#blocklyDiv {width:75%; height:100%;}
-#panel {
-  width:25%;
-  background:#1f1f1f;
-  color:white;
-  padding:12px;
-}
-button {
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  background:#444;
-  color:red;
-  border:none;
-}
-textarea {
-  width:100%;
-  height:230px;
-  margin-top:10px;
-  background:#111;
-  color:#0f0;
-}
-</style>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      display: flex;
+      height: 100vh;
+      background: #111;
+    }
+
+    /* 🔴 LEFT TOOLBOX PANEL */
+    #toolbox {
+      height: 100%;
+      width: 20%;
+      background: #1a0000;
+      color: white;
+      padding: 10px;
+      box-sizing: border-box;
+      border-right: 2px solid red;
+    }
+
+    /* 🧩 BLOCKLY AREA */
+    #blocklyDiv {
+      height: 100%;
+      width: 60%;
+    }
+
+    /* 📟 CODE AREA */
+    #codeArea {
+      width: 20%;
+      background: #000;
+      color: #ff3b3b;
+      padding: 10px;
+      box-sizing: border-box;
+      border-left: 2px solid red;
+      font-size: 13px;
+      overflow: auto;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background: red;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: darkred;
+    }
+  </style>
 </head>
 
 <body>
 
+<!-- 🧩 BLOCKLY -->
 <div id="blocklyDiv"></div>
 
-<div id="panel">
-<h3>Arduino</h3>
-<button onclick="generateCode()">Generate Code</button>
-<button onclick="workspace.clear()">Clear Blocks</button>
-<textarea id="code"></textarea>
+<!-- 📟 CODE OUTPUT -->
+<div id="codeArea">
+  <h3>Arduino Code 🔥</h3>
+  <pre id="code"></pre>
+  <button onclick="generateCode()">Generate Code</button>
 </div>
 
-<xml id="toolbox" style="display:none">
+<!-- TOOLBOX -->
+<xml id="toolbox" style="display: none">
 
-<category name="Pin" colour="#4C97FF">
-  <block type="read_digital"></block>
-  <block type="read_analog"></block>
-  <block type="set_digital"></block>
-  <block type="set_pwm"></block>
-  <block type="set_servo"></block>
-</category>
+  <category name="🔌 Pins" colour="red">
+    <block type="pin_write"></block>
+    <block type="pin_read"></block>
+  </category>
 
-<category name="Control" colour="#F39C12">
-  <block type="controls_if"></block>
-  <block type="controls_repeat_ext"></block>
-  <block type="forever"></block>
-  <block type="wait"></block>
-</category>
+  <category name="🔁 Control" colour="darkred">
+    <block type="controls_if"></block>
+    <block type="controls_repeat_ext"></block>
+  </category>
 
-<category name="Operators" colour="#27AE60">
-  <block type="math_number"></block>
-  <block type="logic_compare"></block>
-  <block type="math_arithmetic"></block>
-</category>
-
-<category name="Data" colour="#9B59B6" custom="VARIABLE"></category>
+  <category name="➗ Math" colour="red">
+    <block type="math_number"></block>
+    <block type="math_arithmetic"></block>
+  </category>
 
 </xml>
 
 <script>
+/* =========================
+   🔴 BLOCKLY INIT
+========================= */
 
-// INIT
-var workspace = Blockly.inject('blocklyDiv',{
+var workspace = Blockly.inject('blocklyDiv', {
   toolbox: document.getElementById('toolbox'),
-  trashcan:true
+  scrollbars: true,
+  trashcan: true
 });
 
-// PIN LIST (0–13)
-let pinList = [];
-for(let i=0;i<=13;i++){ pinList.push([i.toString(), i.toString()]); }
+/* =========================
+   🔌 CUSTOM BLOCKS
+========================= */
 
-// ANALOG LIST
-let analogList = [["A0","0"],["A1","1"],["A2","2"],["A3","3"],["A4","4"],["A5","5"]];
-
-// READ DIGITAL
-Blockly.Blocks['read_digital'] = {
-  init(){
+Blockly.Blocks['pin_write'] = {
+  init: function() {
     this.appendDummyInput()
-      .appendField("read digital pin")
-      .appendField(new Blockly.FieldDropdown(pinList), "PIN");
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-// READ ANALOG
-Blockly.Blocks['read_analog'] = {
-  init(){
-    this.appendDummyInput()
-      .appendField("read analog pin")
-      .appendField(new Blockly.FieldDropdown(analogList), "PIN");
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-// SET DIGITAL
-Blockly.Blocks['set_digital'] = {
-  init(){
-    this.appendDummyInput()
-      .appendField("set digital pin")
-      .appendField(new Blockly.FieldDropdown(pinList), "PIN")
-      .appendField("output as")
+      .appendField("set pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["13","13"],
+        ["12","12"],
+        ["11","11"],
+        ["10","10"]
+      ]), "PIN")
+      .appendField("to")
       .appendField(new Blockly.FieldDropdown([
         ["HIGH","HIGH"],
         ["LOW","LOW"]
@@ -122,129 +126,57 @@ Blockly.Blocks['set_digital'] = {
 
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#4C97FF");
+    this.setColour("red");
   }
 };
 
-// PWM
-Blockly.Blocks['set_pwm'] = {
-  init(){
+Blockly.Blocks['pin_read'] = {
+  init: function() {
     this.appendDummyInput()
-      .appendField("set PWM pin")
-      .appendField(new Blockly.FieldDropdown(pinList), "PIN")
-      .appendField("value")
-      .appendField(new Blockly.FieldNumber(0,0,255), "VALUE");
+      .appendField("read pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["A0","A0"],
+        ["A1","A1"],
+        ["2","2"],
+        ["3","3"]
+      ]), "PIN");
 
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#4C97FF");
+    this.setOutput(true, "Number");
+    this.setColour("darkred");
   }
 };
 
-// SERVO
-Blockly.Blocks['set_servo'] = {
-  init(){
-    this.appendDummyInput()
-      .appendField("set servo pin")
-      .appendField(new Blockly.FieldDropdown(pinList), "PIN")
-      .appendField("angle")
-      .appendField(new Blockly.FieldNumber(90,0,180), "ANGLE");
+/* =========================
+   ⚙️ CODE GENERATOR
+========================= */
 
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#4C97FF");
-  }
+Blockly.JavaScript['pin_write'] = function(block) {
+  var pin = block.getFieldValue('PIN');
+  var state = block.getFieldValue('STATE');
+  return `digitalWrite(${pin}, ${state});\n`;
 };
 
-// FOREVER
-Blockly.Blocks['forever'] = {
-  init(){
-    this.appendStatementInput("DO").appendField("forever");
-    this.setColour("#F39C12");
-  }
+Blockly.JavaScript['pin_read'] = function(block) {
+  var pin = block.getFieldValue('PIN');
+  return [`digitalRead(${pin})`, Blockly.JavaScript.ORDER_NONE];
 };
 
-// WAIT
-Blockly.Blocks['wait'] = {
-  init(){
-    this.appendDummyInput()
-      .appendField("wait")
-      .appendField(new Blockly.FieldNumber(1,0), "TIME")
-      .appendField("seconds");
+/* =========================
+   📟 GENERATE CODE
+========================= */
 
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#F39C12");
-  }
-};
+function generateCode() {
+  var code = Blockly.JavaScript.workspaceToCode(workspace);
 
-// GENERATE CODE
-function generateCode(){
-
-let code="";
-let blocks=workspace.getTopBlocks(true);
-
-blocks.forEach(b=>{ code+=gen(b); });
-
-let final=`
-#include <Servo.h>
-Servo servo1;
-
-void setup(){
-Serial.begin(9600);
-servo1.attach(9);
+  document.getElementById("code").innerText =
+`void setup() {
+  pinMode(13, OUTPUT);
 }
 
-void loop(){
+void loop() {
 ${code}
+}`;
 }
-`;
-
-document.getElementById("code").value=final;
-}
-
-// GENERATOR
-function gen(block){
-
-let code="";
-
-switch(block.type){
-
-case "set_digital":
-code+=`digitalWrite(${block.getFieldValue("PIN")}, ${block.getFieldValue("STATE")});\n`;
-break;
-
-case "set_pwm":
-code+=`analogWrite(${block.getFieldValue("PIN")}, ${block.getFieldValue("VALUE")});\n`;
-break;
-
-case "set_servo":
-code+=`servo1.write(${block.getFieldValue("ANGLE")});\n`;
-break;
-
-case "wait":
-code+=`delay(${block.getFieldValue("TIME")*1000});\n`;
-break;
-
-case "forever":
-let inner="";
-let child=block.getInputTargetBlock("DO");
-while(child){
-inner+=gen(child);
-child=child.getNextBlock();
-}
-code+="while(true){\n"+inner+"}\n";
-break;
-
-}
-
-if(block.getNextBlock()){
-code+=gen(block.getNextBlock());
-}
-
-return code;
-}
-
 </script>
 
 </body>
