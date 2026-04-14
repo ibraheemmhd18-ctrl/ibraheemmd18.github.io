@@ -2,14 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Arduino Blockly PRO</title>
+<title>Arduino Blockly PRO MAX</title>
 
 <script src="https://cdn.jsdelivr.net/npm/blockly@10.3.1/blockly.min.js"></script>
 
 <style>
 body { margin:0; display:flex; height:100vh; }
 #blocklyDiv { width:75%; height:100%; }
-#controls {
+#panel {
   width:25%;
   background:#1e1e1e;
   color:white;
@@ -33,58 +33,37 @@ textarea {
 
 <div id="blocklyDiv"></div>
 
-<div id="controls">
+<div id="panel">
 <h3>Arduino</h3>
 <button onclick="generateCode()">GENERATE CODE</button>
 <button onclick="workspace.clear()">CLEAR</button>
-<textarea id="codeArea"></textarea>
+<textarea id="code"></textarea>
 </div>
 
 <xml id="toolbox" style="display:none">
 
-<!-- EVENT -->
-<category name="Event" colour="#FFD500">
-  <block type="start"></block>
-</category>
-
-<!-- PIN FULL -->
 <category name="Pin" colour="#4C97FF">
   <block type="set_digital"></block>
-  <block type="read_digital"></block>
   <block type="read_analog"></block>
-  <block type="set_pwm"></block>
   <block type="servo"></block>
-  <block type="tone"></block>
-  <block type="read_pulse"></block>
 </category>
 
-<!-- SENSOR -->
-<category name="Sensor" colour="#5DADE2">
-  <block type="ultrasonic"></block>
+<category name="LCD" colour="#00ACC1">
+  <block type="lcd_print"></block>
+  <block type="lcd_clear"></block>
 </category>
 
-<!-- CONTROL FULL -->
+<category name="RFID" colour="#8E44AD">
+  <block type="rfid_check"></block>
+</category>
+
 <category name="Control" colour="#FFAB19">
-  <block type="controls_repeat_ext"></block>
   <block type="forever"></block>
-  <block type="controls_whileUntil"></block>
   <block type="controls_if">
     <mutation else="1"></mutation>
   </block>
-  <block type="wait_seconds"></block>
-  <block type="wait_until"></block>
+  <block type="wait"></block>
 </category>
-
-<!-- OPERATORS -->
-<category name="Operators" colour="#40BF4A">
-  <block type="math_number"></block>
-  <block type="math_arithmetic"></block>
-  <block type="logic_compare"></block>
-  <block type="logic_boolean"></block>
-</category>
-
-<!-- VARIABLES -->
-<category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
 
 </xml>
 
@@ -94,22 +73,11 @@ var workspace = Blockly.inject('blocklyDiv', {
   trashcan:true
 });
 
-/* EVENTS */
-Blockly.Blocks['start'] = {
-  init:function(){
-    this.appendDummyInput().appendField("when Arduino starts");
-    this.setNextStatement(true);
-    this.setColour("#FFD500");
-  }
-};
-
-/* PIN BLOCKS */
+/* PIN */
 Blockly.Blocks['set_digital'] = {
   init:function(){
     this.appendDummyInput()
-      .appendField("set pin")
-      .appendField(new Blockly.FieldNumber(9))
-      .appendField("as")
+      .appendField("set pin 13")
       .appendField(new Blockly.FieldDropdown([["HIGH","HIGH"],["LOW","LOW"]]));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -117,89 +85,50 @@ Blockly.Blocks['set_digital'] = {
   }
 };
 
-Blockly.Blocks['read_digital'] = {
-  init:function(){
-    this.appendDummyInput()
-      .appendField("read digital pin")
-      .appendField(new Blockly.FieldNumber(2));
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
 Blockly.Blocks['read_analog'] = {
   init:function(){
-    this.appendDummyInput()
-      .appendField("read analog A")
-      .appendField(new Blockly.FieldNumber(0));
+    this.appendDummyInput().appendField("read A0");
     this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-Blockly.Blocks['set_pwm'] = {
-  init:function(){
-    this.appendDummyInput()
-      .appendField("set PWM pin")
-      .appendField(new Blockly.FieldNumber(5))
-      .appendField("value")
-      .appendField(new Blockly.FieldNumber(0,0,255));
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
 
 Blockly.Blocks['servo'] = {
   init:function(){
-    this.appendDummyInput()
-      .appendField("servo pin")
-      .appendField(new Blockly.FieldNumber(9))
-      .appendField("angle")
-      .appendField(new Blockly.FieldNumber(90));
+    this.appendDummyInput().appendField("servo open door");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
 
-Blockly.Blocks['tone'] = {
+/* LCD */
+Blockly.Blocks['lcd_print'] = {
   init:function(){
     this.appendDummyInput()
-      .appendField("tone pin")
-      .appendField(new Blockly.FieldNumber(8))
-      .appendField("freq")
-      .appendField(new Blockly.FieldNumber(440))
-      .appendField("duration")
-      .appendField(new Blockly.FieldNumber(500));
+      .appendField("LCD print")
+      .appendField(new Blockly.FieldTextInput("Hello"));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour("#4C97FF");
+    this.setColour("#00ACC1");
   }
 };
 
-Blockly.Blocks['read_pulse'] = {
+Blockly.Blocks['lcd_clear'] = {
   init:function(){
-    this.appendDummyInput()
-      .appendField("pulse pin")
-      .appendField(new Blockly.FieldNumber(7))
-      .appendField("timeout")
-      .appendField(new Blockly.FieldNumber(20000));
-    this.setOutput(true);
-    this.setColour("#4C97FF");
+    this.appendDummyInput().appendField("LCD clear");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#00ACC1");
   }
 };
 
-/* SENSOR */
-Blockly.Blocks['ultrasonic'] = {
+/* RFID */
+Blockly.Blocks['rfid_check'] = {
   init:function(){
-    this.appendDummyInput()
-      .appendField("ultrasonic trig")
-      .appendField(new Blockly.FieldNumber(2))
-      .appendField("echo")
-      .appendField(new Blockly.FieldNumber(3));
+    this.appendDummyInput().appendField("RFID card detected");
     this.setOutput(true);
-    this.setColour("#5DADE2");
+    this.setColour("#8E44AD");
   }
 };
 
@@ -208,102 +137,96 @@ Blockly.Blocks['forever'] = {
   init:function(){
     this.appendStatementInput("DO").appendField("forever");
     this.setColour("#FFAB19");
-    this.setPreviousStatement(false);
-    this.setNextStatement(false);
   }
 };
 
-Blockly.Blocks['wait_seconds'] = {
+Blockly.Blocks['wait'] = {
   init:function(){
     this.appendDummyInput()
-      .appendField("wait")
-      .appendField(new Blockly.FieldNumber(1))
-      .appendField("seconds");
+      .appendField("wait 1 sec");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour("#FFAB19");
   }
 };
 
-Blockly.Blocks['wait_until'] = {
-  init:function(){
-    this.appendValueInput("COND")
-      .appendField("wait until");
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#FFAB19");
-  }
-};
-
-/* ========================= */
-/* ARDUINO CODE GENERATOR 🔥 */
-/* ========================= */
-
+/* CODE GENERATOR */
 function generateCode() {
   let code = "";
 
   let blocks = workspace.getTopBlocks(true);
 
-  blocks.forEach(block => {
-    code += generateBlock(block);
+  blocks.forEach(b => {
+    code += gen(b);
   });
 
   let final = `
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <SPI.h>
+#include <MFRC522.h>
 #include <Servo.h>
 
-Servo servo_9;
+LiquidCrystal_I2C lcd(0x27,16,2);
+MFRC522 mfrc522(10,9);
+Servo servo1;
 
-void setup() {
-  pinMode(9, OUTPUT);
-  servo_9.attach(9);
+void setup(){
+  lcd.init(); lcd.backlight();
+  SPI.begin(); mfrc522.PCD_Init();
+  servo1.attach(6);
 }
 
-void loop() {
+void loop(){
 ${code}
 }
 `;
 
-  document.getElementById("codeArea").value = final;
+  document.getElementById("code").value = final;
 }
 
-function generateBlock(block) {
+function gen(block){
   let code = "";
 
   switch(block.type){
 
     case "set_digital":
-      code += "digitalWrite(9, HIGH);\n";
-      break;
-
-    case "set_pwm":
-      code += "analogWrite(5, 128);\n";
+      code += "digitalWrite(13,HIGH);\n";
       break;
 
     case "servo":
-      code += "servo_9.write(90);\n";
+      code += "servo1.write(90);\n";
       break;
 
-    case "tone":
-      code += "tone(8, 440, 500);\n";
+    case "lcd_print":
+      code += 'lcd.print("Hello");\n';
       break;
 
-    case "wait_seconds":
+    case "lcd_clear":
+      code += "lcd.clear();\n";
+      break;
+
+    case "wait":
       code += "delay(1000);\n";
       break;
 
     case "forever":
-      let inner = "";
-      let child = block.getInputTargetBlock("DO");
+      let inner="";
+      let child=block.getInputTargetBlock("DO");
       while(child){
-        inner += generateBlock(child);
+        inner += gen(child);
         child = child.getNextBlock();
       }
-      code += "while(true){\n" + inner + "}\n";
+      code += "while(true){\n"+inner+"}\n";
+      break;
+
+    case "rfid_check":
+      code += "mfrc522.PICC_IsNewCardPresent()";
       break;
   }
 
   if(block.getNextBlock()){
-    code += generateBlock(block.getNextBlock());
+    code += gen(block.getNextBlock());
   }
 
   return code;
