@@ -2,18 +2,19 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Arduino Blockly Full System</title>
+<title>Arduino Blockly PRO</title>
 
 <script src="https://cdn.jsdelivr.net/npm/blockly@10.3.1/blockly.min.js"></script>
 
 <style>
 body { margin:0; display:flex; height:100vh; }
-#blocklyDiv { width:80%; height:100%; }
+#blocklyDiv { width:75%; height:100%; }
 #controls {
-  width:20%;
-  background:#222;
+  width:25%;
+  background:#1e1e1e;
   color:white;
   padding:10px;
+  overflow:auto;
 }
 button {
   width:100%;
@@ -22,7 +23,7 @@ button {
 }
 textarea {
   width:100%;
-  height:200px;
+  height:250px;
   margin-top:10px;
 }
 </style>
@@ -41,33 +42,48 @@ textarea {
 
 <xml id="toolbox" style="display:none">
 
-<category name="Events" colour="#FFD500">
+<!-- EVENT -->
+<category name="Event" colour="#FFD500">
   <block type="start"></block>
 </category>
 
+<!-- PIN FULL -->
 <category name="Pin" colour="#4C97FF">
   <block type="set_digital"></block>
+  <block type="read_digital"></block>
   <block type="read_analog"></block>
+  <block type="set_pwm"></block>
   <block type="servo"></block>
+  <block type="tone"></block>
+  <block type="read_pulse"></block>
 </category>
 
+<!-- SENSOR -->
 <category name="Sensor" colour="#5DADE2">
   <block type="ultrasonic"></block>
 </category>
 
+<!-- CONTROL FULL -->
 <category name="Control" colour="#FFAB19">
+  <block type="controls_repeat_ext"></block>
   <block type="forever"></block>
+  <block type="controls_whileUntil"></block>
   <block type="controls_if">
     <mutation else="1"></mutation>
   </block>
   <block type="wait_seconds"></block>
+  <block type="wait_until"></block>
 </category>
 
+<!-- OPERATORS -->
 <category name="Operators" colour="#40BF4A">
   <block type="math_number"></block>
+  <block type="math_arithmetic"></block>
   <block type="logic_compare"></block>
+  <block type="logic_boolean"></block>
 </category>
 
+<!-- VARIABLES -->
 <category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
 
 </xml>
@@ -87,16 +103,26 @@ Blockly.Blocks['start'] = {
   }
 };
 
-/* PIN */
+/* PIN BLOCKS */
 Blockly.Blocks['set_digital'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("set pin")
-    .appendField(new Blockly.FieldNumber(9))
-    .appendField("as")
-    .appendField(new Blockly.FieldDropdown([["HIGH","HIGH"],["LOW","LOW"]]));
+      .appendField("set pin")
+      .appendField(new Blockly.FieldNumber(9))
+      .appendField("as")
+      .appendField(new Blockly.FieldDropdown([["HIGH","HIGH"],["LOW","LOW"]]));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['read_digital'] = {
+  init:function(){
+    this.appendDummyInput()
+      .appendField("read digital pin")
+      .appendField(new Blockly.FieldNumber(2));
+    this.setOutput(true);
     this.setColour("#4C97FF");
   }
 };
@@ -104,9 +130,22 @@ Blockly.Blocks['set_digital'] = {
 Blockly.Blocks['read_analog'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("read analog A")
-    .appendField(new Blockly.FieldNumber(0));
+      .appendField("read analog A")
+      .appendField(new Blockly.FieldNumber(0));
     this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['set_pwm'] = {
+  init:function(){
+    this.appendDummyInput()
+      .appendField("set PWM pin")
+      .appendField(new Blockly.FieldNumber(5))
+      .appendField("value")
+      .appendField(new Blockly.FieldNumber(0,0,255));
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
     this.setColour("#4C97FF");
   }
 };
@@ -114,12 +153,39 @@ Blockly.Blocks['read_analog'] = {
 Blockly.Blocks['servo'] = {
   init:function(){
     this.appendDummyInput()
-    .appendField("servo pin")
-    .appendField(new Blockly.FieldNumber(9))
-    .appendField("angle")
-    .appendField(new Blockly.FieldNumber(90));
+      .appendField("servo pin")
+      .appendField(new Blockly.FieldNumber(9))
+      .appendField("angle")
+      .appendField(new Blockly.FieldNumber(90));
     this.setPreviousStatement(true);
     this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['tone'] = {
+  init:function(){
+    this.appendDummyInput()
+      .appendField("tone pin")
+      .appendField(new Blockly.FieldNumber(8))
+      .appendField("freq")
+      .appendField(new Blockly.FieldNumber(440))
+      .appendField("duration")
+      .appendField(new Blockly.FieldNumber(500));
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['read_pulse'] = {
+  init:function(){
+    this.appendDummyInput()
+      .appendField("pulse pin")
+      .appendField(new Blockly.FieldNumber(7))
+      .appendField("timeout")
+      .appendField(new Blockly.FieldNumber(20000));
+    this.setOutput(true);
     this.setColour("#4C97FF");
   }
 };
@@ -159,7 +225,19 @@ Blockly.Blocks['wait_seconds'] = {
   }
 };
 
-/* GENERATORS (ARDUINO CODE) */
+Blockly.Blocks['wait_until'] = {
+  init:function(){
+    this.appendValueInput("COND")
+      .appendField("wait until");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#FFAB19");
+  }
+};
+
+/* ========================= */
+/* ARDUINO CODE GENERATOR 🔥 */
+/* ========================= */
 
 function generateCode() {
   let code = "";
@@ -167,10 +245,10 @@ function generateCode() {
   let blocks = workspace.getTopBlocks(true);
 
   blocks.forEach(block => {
-    code += generateBlockCode(block);
+    code += generateBlock(block);
   });
 
-  let finalCode = `
+  let final = `
 #include <Servo.h>
 
 Servo servo_9;
@@ -185,20 +263,28 @@ ${code}
 }
 `;
 
-  document.getElementById("codeArea").value = finalCode;
+  document.getElementById("codeArea").value = final;
 }
 
-function generateBlockCode(block) {
+function generateBlock(block) {
   let code = "";
 
-  switch(block.type) {
+  switch(block.type){
 
     case "set_digital":
       code += "digitalWrite(9, HIGH);\n";
       break;
 
+    case "set_pwm":
+      code += "analogWrite(5, 128);\n";
+      break;
+
     case "servo":
       code += "servo_9.write(90);\n";
+      break;
+
+    case "tone":
+      code += "tone(8, 440, 500);\n";
       break;
 
     case "wait_seconds":
@@ -209,7 +295,7 @@ function generateBlockCode(block) {
       let inner = "";
       let child = block.getInputTargetBlock("DO");
       while(child){
-        inner += generateBlockCode(child);
+        inner += generateBlock(child);
         child = child.getNextBlock();
       }
       code += "while(true){\n" + inner + "}\n";
@@ -217,7 +303,7 @@ function generateBlockCode(block) {
   }
 
   if(block.getNextBlock()){
-    code += generateBlockCode(block.getNextBlock());
+    code += generateBlock(block.getNextBlock());
   }
 
   return code;
