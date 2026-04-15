@@ -1,183 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Red mBlock Style Arduino</title>
-
+  <title>its possibe its arduino mblock full...</title>
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      display: flex;
-      height: 100vh;
-      background: #111;
+    body { margin:0; font-family:Arial; }
+    #blocklyDiv { height:100vh; width:75%; float:left; }
+    #side {
+      width:25%; height:100vh; float:right;
+      background:#222; color:white; padding:10px;
     }
-
-    /* 🔴 LEFT TOOLBOX PANEL */
-    #toolbox {
-      height: 100%;
-      width: 20%;
-      background: #1a0000;
-      color: white;
-      padding: 10px;
-      box-sizing: border-box;
-      border-right: 2px solid red;
-    }
-
-    /* 🧩 BLOCKLY AREA */
-    #blocklyDiv {
-      height: 100%;
-      width: 60%;
-    }
-
-    /* 📟 CODE AREA */
-    #codeArea {
-      width: 20%;
-      background: #000;
-      color: #ff3b3b;
-      padding: 10px;
-      box-sizing: border-box;
-      border-left: 2px solid red;
-      font-size: 13px;
-      overflow: auto;
-    }
-
     button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      background: red;
-      border: none;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
+      width:100%; padding:12px; margin:5px 0;
+      font-size:16px;
     }
-
-    button:hover {
-      background: darkred;
+    textarea {
+      width:100%; height:200px;
     }
   </style>
 </head>
 
 <body>
 
-<!-- 🧩 BLOCKLY -->
 <div id="blocklyDiv"></div>
 
-<!-- 📟 CODE OUTPUT -->
-<div id="codeArea">
-  <h3>Arduino Code 🔥</h3>
-  <pre id="code"></pre>
+<div id="side">
+  <h2>Arduino</h2>
   <button onclick="generateCode()">Generate Code</button>
+  <button onclick="clearBlocks()">Clear Blocks</button>
+  <textarea id="code"></textarea>
 </div>
 
 <!-- TOOLBOX -->
-<xml id="toolbox" style="display: none">
+<xml id="toolbox" style="display:none">
 
-  <category name="🔌 Pins" colour="red">
-    <block type="pin_write"></block>
-    <block type="pin_read"></block>
+  <!-- EVENTS -->
+  <category name="Events" colour="#FFD500">
+    <block type="start"></block>
   </category>
 
-  <category name="🔁 Control" colour="darkred">
+  <!-- CONTROL -->
+  <category name="Control" colour="#FFAB19">
     <block type="controls_if"></block>
     <block type="controls_repeat_ext"></block>
+    <block type="controls_whileUntil"></block>
+    <block type="controls_for"></block>
+    <block type="controls_flow_statements"></block>
   </category>
 
-  <category name="➗ Math" colour="red">
+  <!-- PINS -->
+  <category name="Pins" colour="#4C97FF">
+    <block type="digital_read"></block>
+    <block type="digital_write"></block>
+    <block type="analog_read"></block>
+    <block type="pwm_write"></block>
+    <block type="servo_write"></block>
+  </category>
+
+  <!-- SENSOR -->
+  <category name="Sensor" colour="#5CB1D6">
+    <block type="ultrasonic"></block>
+  </category>
+
+  <!-- SERIAL -->
+  <category name="Serial" colour="#59C059">
+    <block type="serial_write"></block>
+    <block type="serial_read"></block>
+  </category>
+
+  <!-- DATA -->
+  <category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
+
+  <!-- OPERATORS -->
+  <category name="Operators" colour="#40BF4A">
     <block type="math_number"></block>
     <block type="math_arithmetic"></block>
+    <block type="logic_compare"></block>
   </category>
 
 </xml>
 
 <script>
-/* =========================
-   🔴 BLOCKLY INIT
-========================= */
 
 var workspace = Blockly.inject('blocklyDiv', {
-  toolbox: document.getElementById('toolbox'),
-  scrollbars: true,
-  trashcan: true
+  toolbox: document.getElementById('toolbox')
 });
 
-/* =========================
-   🔌 CUSTOM BLOCKS
-========================= */
 
-Blockly.Blocks['pin_write'] = {
+// ================= BLOCK DEFINITIONS =================
+
+// START
+Blockly.Blocks['start'] = {
   init: function() {
-    this.appendDummyInput()
-      .appendField("set pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["13","13"],
-        ["12","12"],
-        ["11","11"],
-        ["10","10"]
-      ]), "PIN")
-      .appendField("to")
-      .appendField(new Blockly.FieldDropdown([
-        ["HIGH","HIGH"],
-        ["LOW","LOW"]
-      ]), "STATE");
-
-    this.setPreviousStatement(true);
+    this.appendDummyInput().appendField("when Arduino starts");
     this.setNextStatement(true);
-    this.setColour("red");
+    this.setColour("#FFD500");
   }
 };
 
-Blockly.Blocks['pin_read'] = {
+// DIGITAL READ
+Blockly.Blocks['digital_read'] = {
   init: function() {
     this.appendDummyInput()
-      .appendField("read pin")
+      .appendField("read digital pin")
       .appendField(new Blockly.FieldDropdown([
-        ["A0","A0"],
-        ["A1","A1"],
-        ["2","2"],
-        ["3","3"]
+        ["2","2"],["3","3"],["4","4"],["5","5"],
+        ["6","6"],["7","7"],["8","8"],["9","9"]
       ]), "PIN");
-
     this.setOutput(true, "Number");
-    this.setColour("darkred");
+    this.setColour("#4C97FF");
   }
 };
 
-/* =========================
-   ⚙️ CODE GENERATOR
-========================= */
-
-Blockly.JavaScript['pin_write'] = function(block) {
-  var pin = block.getFieldValue('PIN');
-  var state = block.getFieldValue('STATE');
-  return `digitalWrite(${pin}, ${state});\n`;
-};
-
-Blockly.JavaScript['pin_read'] = function(block) {
-  var pin = block.getFieldValue('PIN');
-  return [`digitalRead(${pin})`, Blockly.JavaScript.ORDER_NONE];
-};
-
-/* =========================
-   📟 GENERATE CODE
-========================= */
-
-function generateCode() {
-  var code = Blockly.JavaScript.workspaceToCode(workspace);
-
-  document.getElementById("code").innerText =
-`void setup() {
-  pinMode(13, OUTPUT);
-}
-
-void loop() {
-${code}
-}`;
-}
-</script>
-
-</body>
-</html>
+// DIGITAL WRITE
+Blockly.Blocks['digital_write'] = {
+  init: function() {
+    this.appendDummyInput()
+      .appendField("set digital pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["2","2"],["
