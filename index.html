@@ -2,16 +2,13 @@
 <html>
 <head>
 <meta charset="utf-8">
+<title>mBlock Safe FULL</title>
+
 <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 
 <style>
-body { margin:0; }
-#blocklyDiv { height:100vh; width:70%; float:left; }
-#side {
-  width:30%; height:100vh; float:right;
-  background:#222; color:white; padding:10px;
-}
-button { width:100%; padding:10px; margin-top:10px; }
+body { margin:0; font-family:Arial; }
+#blocklyDiv { height:100vh; width:100%; }
 </style>
 </head>
 
@@ -19,98 +16,51 @@ button { width:100%; padding:10px; margin-top:10px; }
 
 <div id="blocklyDiv"></div>
 
-<div id="side">
-<h3>Arduino</h3>
-<button onclick="workspace.clear()">Clear Blocks</button>
-</div>
-
-<!-- TOOLBOX -->
 <xml id="toolbox" style="display:none">
 
-<!-- PINS -->
-<category name="Pins" colour="#4C97FF">
-  <block type="digital_write"></block>
-  <block type="digital_read"></block>
-  <block type="analog_read"></block>
+<!-- EVENTS -->
+<category name="Events" colour="#FFD500">
+  <block type="controls_if"></block>
 </category>
 
 <!-- CONTROL -->
 <category name="Control" colour="#FFAB19">
-  <block type="controls_if"></block>
   <block type="controls_repeat_ext"></block>
+  <block type="controls_whileUntil"></block>
 </category>
 
-<!-- SERIAL -->
-<category name="Serial" colour="#2ECC71">
-  <block type="serial_write"></block>
-  <block type="serial_read"></block>
+<!-- OPERATORS -->
+<category name="Operators" colour="#40BF4A">
+  <block type="math_number"></block>
+  <block type="math_arithmetic"></block>
+  <block type="logic_compare"></block>
 </category>
 
-<!-- SENSOR -->
-<category name="Sensor" colour="#5DADE2">
-  <block type="ultrasonic"></block>
+<!-- DATA -->
+<category name="Data" colour="#9B59B6">
+  <block type="text"></block>
 </category>
 
 <!-- VARIABLES -->
 <category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
 
+<!-- MY BLOCKS -->
+<category name="My Blocks" colour="#FF6680" custom="PROCEDURE"></category>
+
 </xml>
 
 <script>
 
-// INIT
-var workspace = Blockly.inject('blocklyDiv',{
-  toolbox: document.getElementById('toolbox'),
-  trashcan:true
-});
+window.onload = function(){
 
-// ---------------- PINS ----------------
+  Blockly.inject('blocklyDiv',{
+    toolbox: document.getElementById('toolbox'),
+    trashcan:true
+  });
 
-// DIGITAL WRITE
-Blockly.Blocks['digital_write'] = {
-  init(){
-    this.appendDummyInput()
-      .appendField("set pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["2","2"],["3","3"],["4","4"],["5","5"]
-      ]),"PIN")
-      .appendField("to")
-      .appendField(new Blockly.FieldDropdown([
-        ["HIGH","HIGH"],["LOW","LOW"]
-      ]),"STATE");
-
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setColour("#4C97FF");
-  }
 };
 
-// DIGITAL READ
-Blockly.Blocks['digital_read'] = {
-  init(){
-    this.appendDummyInput()
-      .appendField("read pin")
-      .appendField(new Blockly.FieldDropdown([
-        ["2","2"],["3","3"],["4","4"]
-      ]),"PIN");
+</script>
 
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-// ANALOG READ
-Blockly.Blocks['analog_read'] = {
-  init(){
-    this.appendDummyInput()
-      .appendField("read analog")
-      .appendField(new Blockly.FieldDropdown([
-        ["A0","A0"],["A1","A1"]
-      ]),"PIN");
-
-    this.setOutput(true);
-    this.setColour("#4C97FF");
-  }
-};
-
-// ---------------- SERIAL ----------------
+</body>
+</html>
