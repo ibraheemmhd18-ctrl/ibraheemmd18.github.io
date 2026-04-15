@@ -2,13 +2,19 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>mBlock Stable</title>
+<title>Blockly Arduino</title>
 
 <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 
 <style>
-body { margin:0; }
-#blocklyDiv { height:100vh; width:100%; }
+body { margin:0; font-family:Arial; }
+#blocklyDiv { height:100vh; width:70%; float:left; }
+#side {
+  width:30%; height:100vh; float:right;
+  background:#222; color:white; padding:10px;
+}
+button { width:100%; padding:10px; margin-top:10px; }
+textarea { width:100%; height:200px; margin-top:10px; }
 </style>
 </head>
 
@@ -16,55 +22,149 @@ body { margin:0; }
 
 <div id="blocklyDiv"></div>
 
+<div id="side">
+<h3>Arduino Code</h3>
+<button onclick="generateCode()">Generate Code</button>
+<button onclick="workspace.clear()">Clear</button>
+<textarea id="code"></textarea>
+</div>
+
+<!-- TOOLBOX -->
 <xml id="toolbox" style="display:none">
 
-<!-- EVENTS -->
-<category name="Events" colour="#FFD500">
-  <block type="controls_if"></block>
+<category name="Pins" colour="#4C97FF">
+  <block type="digital_write"></block>
+  <block type="digital_read"></block>
 </category>
 
-<!-- CONTROL -->
 <category name="Control" colour="#FFAB19">
+  <block type="controls_if"></block>
   <block type="controls_repeat_ext"></block>
-  <block type="controls_whileUntil"></block>
-  <block type="controls_for"></block>
 </category>
 
-<!-- OPERATORS -->
-<category name="Operators" colour="#40BF4A">
-  <block type="math_number"></block>
-  <block type="math_arithmetic"></block>
-  <block type="logic_compare"></block>
-</category>
-
-<!-- DATA -->
-<category name="Data" colour="#9B59B6">
-  <block type="text"></block>
-</category>
-
-<!-- VARIABLES -->
 <category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
 
-<!-- MY BLOCKS -->
-<category name="My Blocks" colour="#FF6680" custom="PROCEDURE"></category>
-
-<!-- EMPTY SAFE CATEGORIES -->
-<category name="Pins" colour="#4C97FF"></category>
-<category name="Serial" colour="#2ECC71"></category>
-<category name="Sensor" colour="#5DADE2"></category>
+<category name="Operators" colour="#40BF4A">
+  <block type="logic_compare"></block>
+  <block type="math_number"></block>
+</category>
 
 </xml>
 
 <script>
 
-// SAFE LOAD
-window.onload = function(){
-  Blockly.inject('blocklyDiv',{
-    toolbox: document.getElementById('toolbox'),
-    trashcan:true,
-    scrollbars:true
-  });
+// INIT
+var workspace = Blockly.inject('blocklyDiv',{
+  toolbox: document.getElementById('toolbox'),
+  trashcan:true
+});
+
+// ---------------- BLOCKS ----------------
+
+// DIGITAL WRITE
+Blockly.Blocks['digital_write'] = {
+  init(){
+    this.appendDummyInput()
+      .appendField("set pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["2","2"],["3","3"],["4","4"]
+      ]),"PIN")
+      .appendField("to")
+      .appendField(new Blockly.FieldDropdown([
+        ["HIGH","HIGH"],["LOW","LOW"]
+      ]),"STATE");
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour("#4C97FF");
+  }
 };
+
+// DIGITAL READ
+Blockly.Blocks['digital_read'] = {
+  init(){
+    this.appendDummyInput()
+      .appendField("read pin")
+      .appendField(new Blockly.FieldDropdown([
+        ["2","2"],["3","3"],["4","4"]
+      ]),"PIN");
+
+    this.setOutput(true);
+    this.setColour("#4C97FF");
+  }
+};
+
+// ---------------- GENERATOR ----------------
+
+function generateCode(){
+
+let code = "";
+let blocks = workspace.getTopBlocks(true);
+
+blocks.forEach(b => {
+  code += generateBlock(b);
+});
+
+let final = `
+void setup(){
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+}
+
+void loop(){
+${code}
+}
+`;
+
+document.getElementById("code").value = final;
+}
+
+// BLOCK → CODE
+function generateBlock(block){
+
+let code = "";
+
+switch(block.type){
+
+case "digital_write":
+let pin = block.getFieldValue("PIN");
+let state = block.getFieldValue("STATE");
+code += `digitalWrite(${pin}, ${state});\n`;
+break;
+
+case "controls_repeat_ext":
+let times = block.getFieldValue("TIMES") || 5;
+let inner = getInner(block);
+code += `for(int i=0;i<${times};i++){\n${inner}}\n`;
+break;
+
+case "controls_if":
+let condition = "true";
+let innerIf = getInner(block);
+code += `if(${condition}){\n${innerIf}}\n`;
+break;
+
+}
+
+// NEXT BLOCK
+if(block.getNextBlock()){
+code += generateBlock(block.getNextBlock());
+}
+
+return code;
+}
+
+// GET INNER BLOCKS
+function getInner(block){
+let code="";
+let child = block.getInputTargetBlock("DO");
+while(child){
+code += generateBlock(child);
+child = child.getNextBlock();
+}
+return code;
+}
 
 </script>
 
