@@ -37,7 +37,7 @@ body{
   height:calc(100vh - 50px);
 }
 
-/* SIDE PANEL */
+/* SIDE */
 #side{
   position:absolute;
   top:50px;
@@ -149,6 +149,11 @@ const toolbox = {
         {
           "kind":"block",
           "type":"analog_read"
+        },
+
+        {
+          "kind":"block",
+          "type":"servo_write"
         }
 
       ]
@@ -340,9 +345,7 @@ Blockly.Blocks['digital_read'] = {
         ["2","2"],
         ["3","3"],
         ["4","4"],
-        ["5","5"],
-        ["6","6"],
-        
+        ["5","5"]
       ]),"PIN");
 
     this.setOutput(true);
@@ -369,6 +372,47 @@ Blockly.Blocks['analog_read'] = {
       ]),"PIN");
 
     this.setOutput(true);
+
+    this.setColour("#4C97FF");
+  }
+};
+
+/* ================= SERVO ================= */
+
+Blockly.Blocks['servo_write'] = {
+
+  init:function(){
+
+    this.appendDummyInput()
+
+      .appendField("set servo pin")
+
+      .appendField(new Blockly.FieldDropdown([
+        ["3","3"],
+        ["5","5"],
+        ["6","6"],
+        ["9","9"],
+        ["10","10"],
+        ["11","11"]
+      ]),"PIN")
+
+      .appendField("angle")
+
+      .appendField(new Blockly.FieldDropdown([
+        ["0","0"],
+        ["30","30"],
+        ["45","45"],
+        ["60","60"],
+        ["90","90"],
+        ["120","120"],
+        ["135","135"],
+        ["150","150"],
+        ["180","180"]
+      ]),"ANGLE");
+
+    this.setPreviousStatement(true);
+
+    this.setNextStatement(true);
 
     this.setColour("#4C97FF");
   }
@@ -435,147 +479,27 @@ Blockly.Blocks['ultrasonic_sensor'] = {
 
 function generateCode(){
 
-let blocks = workspace.getTopBlocks(true);
-
-let loopCode = "";
-
-blocks.forEach(block=>{
-
-  loopCode += generateBlock(block);
-
-});
-
 let finalCode = `
 
-long readUltrasonicDistance(int trigPin,int echoPin){
+#include <Servo.h>
 
-  pinMode(trigPin,OUTPUT);
-
-  digitalWrite(trigPin,LOW);
-
-  delayMicroseconds(2);
-
-  digitalWrite(trigPin,HIGH);
-
-  delayMicroseconds(10);
-
-  digitalWrite(trigPin,LOW);
-
-  pinMode(echoPin,INPUT);
-
-  return pulseIn(echoPin,HIGH)*0.034/2;
-}
+Servo myServo;
 
 void setup(){
 
   Serial.begin(9600);
 
+  myServo.attach(9);
+
 }
 
 void loop(){
-
-${loopCode}
 
 }
 
 `;
 
 document.getElementById("code").value = finalCode;
-}
-
-/* ================= BLOCK TO CODE ================= */
-
-function generateBlock(block){
-
-if(!block) return "";
-
-let code = "";
-
-switch(block.type){
-
-/* DIGITAL WRITE */
-case "digital_write":
-
-let pin = block.getFieldValue("PIN");
-
-let state = block.getFieldValue("STATE");
-
-code += `digitalWrite(${pin}, ${state});\n`;
-
-break;
-
-/* SERIAL */
-case "serial_print":
-
-code += `Serial.println("Hello");\n`;
-
-break;
-
-/* REPEAT */
-case "controls_repeat_ext":
-
-let repeatCode = getInner(block);
-
-code += `
-for(int i=0;i<10;i++){
-
-${repeatCode}
-
-}
-`;
-
-break;
-
-/* IF */
-case "controls_if":
-
-let ifCode = getInner(block);
-
-code += `
-if(true){
-
-${ifCode}
-
-}
-`;
-
-break;
-
-}
-
-/* NEXT */
-if(block.getNextBlock()){
-
-  code += generateBlock(block.getNextBlock());
-
-}
-
-return code;
-}
-
-/* ================= INNER BLOCKS ================= */
-
-function getInner(block){
-
-let code = "";
-
-let child = block.getInputTargetBlock("DO0");
-
-if(!child){
-
-  child = block.getInputTargetBlock("DO");
-
-}
-
-while(child){
-
-  code += generateBlock(child);
-
-  child = child.getNextBlock();
-
-}
-
-return code;
 }
 
 </script>
