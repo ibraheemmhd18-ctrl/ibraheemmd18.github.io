@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>mBlock Style IDE</title>
+<title>Arduino mBlock Style</title>
 
 <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 
@@ -19,14 +19,15 @@ body{
   color:white;
   display:flex;
   align-items:center;
-  padding-left:10px;
+  padding-left:15px;
+  font-size:18px;
 }
 
 #blocklyDiv{
   position:absolute;
   top:50px;
   left:0;
-  width:70%;
+  width:72%;
   height:calc(100vh - 50px);
 }
 
@@ -34,7 +35,7 @@ body{
   position:absolute;
   top:50px;
   right:0;
-  width:30%;
+  width:28%;
   height:calc(100vh - 50px);
   background:#1e1e1e;
   color:white;
@@ -49,7 +50,7 @@ button{
   border:none;
   background:#4C97FF;
   color:white;
-  cursor:pointer;
+  font-size:16px;
 }
 
 textarea{
@@ -69,16 +70,20 @@ textarea{
 <body>
 
 <div id="topbar">
-mBlock Style Arduino IDE
+Arduino mBlock Style IDE
 </div>
 
 <div id="blocklyDiv"></div>
 
 <div id="side">
 
-<button onclick="generateCode()">Generate Code</button>
+<button onclick="generateCode()">
+Generate Code
+</button>
 
-<button onclick="workspace.clear()">Clear Blocks</button>
+<button onclick="workspace.clear()">
+Clear Blocks
+</button>
 
 <textarea id="code"></textarea>
 
@@ -86,7 +91,8 @@ mBlock Style Arduino IDE
 
 <script>
 
-/* TOOLBOX */
+/* ================= TOOLBOX ================= */
+
 const toolbox = {
   "kind":"categoryToolbox",
   "contents":[
@@ -98,23 +104,7 @@ const toolbox = {
       "contents":[
         {
           "kind":"block",
-          "type":"controls_if"
-        }
-      ]
-    },
-
-    {
-      "kind":"category",
-      "name":"Control",
-      "colour":"#FFAB19",
-      "contents":[
-        {
-          "kind":"block",
-          "type":"controls_repeat_ext"
-        },
-        {
-          "kind":"block",
-          "type":"controls_whileUntil"
+          "type":"arduino_start"
         }
       ]
     },
@@ -127,6 +117,38 @@ const toolbox = {
         {
           "kind":"block",
           "type":"digital_write"
+        },
+        {
+          "kind":"block",
+          "type":"digital_read"
+        },
+        {
+          "kind":"block",
+          "type":"analog_read"
+        },
+        {
+          "kind":"block",
+          "type":"servo_write"
+        }
+      ]
+    },
+
+    {
+      "kind":"category",
+      "name":"Sensor",
+      "colour":"#5DADE2",
+      "contents":[
+        {
+          "kind":"block",
+          "type":"ultrasonic_sensor"
+        },
+        {
+          "kind":"block",
+          "type":"button_sensor"
+        },
+        {
+          "kind":"block",
+          "type":"light_sensor"
         }
       ]
     },
@@ -145,12 +167,20 @@ const toolbox = {
 
     {
       "kind":"category",
-      "name":"Sensor",
-      "colour":"#5DADE2",
+      "name":"Control",
+      "colour":"#FFAB19",
       "contents":[
         {
           "kind":"block",
-          "type":"ultrasonic_read"
+          "type":"controls_repeat_ext"
+        },
+        {
+          "kind":"block",
+          "type":"controls_if"
+        },
+        {
+          "kind":"block",
+          "type":"controls_whileUntil"
         }
       ]
     },
@@ -167,6 +197,10 @@ const toolbox = {
         {
           "kind":"block",
           "type":"math_arithmetic"
+        },
+        {
+          "kind":"block",
+          "type":"logic_compare"
         }
       ]
     },
@@ -188,22 +222,40 @@ const toolbox = {
   ]
 };
 
-/* WORKSPACE */
+/* ================= WORKSPACE ================= */
+
 var workspace = Blockly.inject('blocklyDiv',{
   toolbox:toolbox,
   trashcan:true,
   scrollbars:true
 });
 
-/* PINS */
+/* ================= EVENTS ================= */
+
+Blockly.Blocks['arduino_start'] = {
+  init:function(){
+
+    this.appendDummyInput()
+      .appendField("when Arduino Uno starts up");
+
+    this.setNextStatement(true);
+
+    this.setColour("#FFD500");
+  }
+};
+
+/* ================= PINS ================= */
+
 Blockly.Blocks['digital_write'] = {
   init:function(){
 
     this.appendDummyInput()
 
-      .appendField("set pin")
+      .appendField("set digital pin")
 
       .appendField(new Blockly.FieldDropdown([
+        ["0","0"],
+        ["1","1"],
         ["2","2"],
         ["3","3"],
         ["4","4"],
@@ -218,7 +270,7 @@ Blockly.Blocks['digital_write'] = {
         ["13","13"]
       ]),"PIN")
 
-      .appendField("to")
+      .appendField("output as")
 
       .appendField(new Blockly.FieldDropdown([
         ["HIGH","HIGH"],
@@ -232,7 +284,118 @@ Blockly.Blocks['digital_write'] = {
   }
 };
 
-/* SERIAL */
+Blockly.Blocks['digital_read'] = {
+  init:function(){
+
+    this.appendDummyInput()
+
+      .appendField("read digital pin")
+
+      .appendField(new Blockly.FieldDropdown([
+        ["0","0"],
+        ["1","1"],
+        ["2","2"],
+        ["3","3"],
+        ["4","4"]
+      ]),"PIN");
+
+    this.setOutput(true);
+
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['analog_read'] = {
+  init:function(){
+
+    this.appendDummyInput()
+
+      .appendField("read analog pin")
+
+      .appendField(new Blockly.FieldDropdown([
+        ["A0","A0"],
+        ["A1","A1"],
+        ["A2","A2"],
+        ["A3","A3"],
+        ["A4","A4"],
+        ["A5","A5"]
+      ]),"PIN");
+
+    this.setOutput(true);
+
+    this.setColour("#4C97FF");
+  }
+};
+
+Blockly.Blocks['servo_write'] = {
+  init:function(){
+
+    this.appendDummyInput()
+
+      .appendField("set servo pin")
+
+      .appendField(new Blockly.FieldDropdown([
+        ["3","3"],
+        ["5","5"],
+        ["6","6"],
+        ["9","9"],
+        ["10","10"]
+      ]),"PIN")
+
+      .appendField("angle")
+
+      .appendField(new Blockly.FieldNumber(90,0,180),"ANGLE");
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+
+    this.setColour("#4C97FF");
+  }
+};
+
+/* ================= SENSOR ================= */
+
+Blockly.Blocks['ultrasonic_sensor'] = {
+  init:function(){
+
+    this.appendDummyInput()
+
+      .appendField("ultrasonic distance");
+
+    this.setOutput(true);
+
+    this.setColour("#5DADE2");
+  }
+};
+
+Blockly.Blocks['button_sensor'] = {
+  init:function(){
+
+    this.appendDummyInput()
+
+      .appendField("button pressed");
+
+    this.setOutput(true);
+
+    this.setColour("#5DADE2");
+  }
+};
+
+Blockly.Blocks['light_sensor'] = {
+  init:function(){
+
+    this.appendDummyInput()
+
+      .appendField("light sensor");
+
+    this.setOutput(true);
+
+    this.setColour("#5DADE2");
+  }
+};
+
+/* ================= SERIAL ================= */
+
 Blockly.Blocks['serial_print'] = {
   init:function(){
 
@@ -247,21 +410,8 @@ Blockly.Blocks['serial_print'] = {
   }
 };
 
-/* SENSOR */
-Blockly.Blocks['ultrasonic_read'] = {
-  init:function(){
+/* ================= GENERATOR ================= */
 
-    this.appendDummyInput()
-
-      .appendField("ultrasonic sensor");
-
-    this.setOutput(true);
-
-    this.setColour("#5DADE2");
-  }
-};
-
-/* GENERATE CODE */
 function generateCode(){
 
 document.getElementById("code").value = `
