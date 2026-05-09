@@ -17,14 +17,14 @@ body{
   background:#f2f2f2;
 }
 
-/* TOP BAR */
+/* TOPBAR */
 #topbar{
   height:50px;
   background:#2c313c;
   display:flex;
   align-items:center;
-  padding-left:10px;
   gap:10px;
+  padding-left:10px;
   color:white;
 }
 
@@ -47,7 +47,7 @@ body{
   height:calc(100vh - 50px);
 }
 
-/* SIDE PANEL */
+/* SIDE */
 #side{
   position:absolute;
   top:50px;
@@ -63,7 +63,6 @@ body{
 textarea{
   width:100%;
   height:80%;
-  margin-top:10px;
   background:#111;
   color:#00ff66;
   border:none;
@@ -82,23 +81,27 @@ textarea{
 <div id="topbar">
 
 <button class="topbtn" onclick="generateCode()">
-Generate Code
+Generate
 </button>
 
 <button class="topbtn" onclick="connectArduino()">
-Connect Arduino
+Connect
+</button>
+
+<button class="topbtn" onclick="disconnectArduino()">
+Disconnect
 </button>
 
 <button class="topbtn" onclick="liveMode()">
-Live Mode
+Live
 </button>
 
-<button class="topbtn" onclick="uploadMode()">
-Upload Mode
+<button class="topbtn" onclick="downloadINO()">
+Upload
 </button>
 
 <button class="topbtn" onclick="workspace.clear()">
-Clear Blocks
+Clear
 </button>
 
 <span id="status">
@@ -469,7 +472,7 @@ this.setColour("#2ECC71");
 
 };
 
-/* ================= SENSOR ================= */
+/* ================= ULTRASONIC ================= */
 
 Blockly.Blocks['ultrasonic_sensor'] = {
 
@@ -511,13 +514,11 @@ this.setColour("#5DADE2");
 
 };
 
-/* ================= GENERATE CODE ================= */
+/* ================= CODE GENERATOR ================= */
 
 function generateCode(){
 
-let code = `
-
-#include <Servo.h>
+let code = `#include <Servo.h>
 
 Servo myServo;
 
@@ -551,18 +552,15 @@ myServo.attach(9);
 
 void loop(){
 
-}
-
-`;
+}`;
 
 document.getElementById("code").value = code;
 
 }
 
-/* ================= LIVE COMMUNICATION ================= */
+/* ================= SERIAL CONNECTION ================= */
 
 let port;
-let writer;
 
 async function connectArduino(){
 
@@ -572,10 +570,8 @@ port = await navigator.serial.requestPort();
 
 await port.open({ baudRate:9600 });
 
-writer = port.writable.getWriter();
-
 document.getElementById("status").innerText =
-"Arduino Connected";
+"Connected";
 
 }
 catch(err){
@@ -586,41 +582,65 @@ alert("Connection Failed");
 
 }
 
-/* ================= LIVE MODE ================= */
+/* ================= DISCONNECT ================= */
 
-async function liveMode(){
-
-if(!writer){
-
-alert("Connect Arduino First");
-
-return;
-
-}
+async function disconnectArduino(){
 
 try{
 
-await writer.write(
-new TextEncoder().encode("LIVE_MODE\n")
-);
+if(port){
 
-alert("Live Mode Started");
+await port.close();
+
+port = null;
+
+}
+
+document.getElementById("status").innerText =
+"Disconnected";
 
 }
 catch(err){
 
-alert("Live Mode Error");
+alert("Disconnect Error");
 
 }
 
 }
 
-/* ================= UPLOAD MODE ================= */
+/* ================= LIVE MODE ================= */
 
-function uploadMode(){
+function liveMode(){
 
 alert(
-"Browser cannot fully upload sketches directly.\nUse Arduino CLI or Electron app backend for real upload."
+"Live mode enabled.\nUse WebSerial supported browser."
+);
+
+}
+
+/* ================= REAL UPLOAD FIX ================= */
+
+function downloadINO(){
+
+generateCode();
+
+let code =
+document.getElementById("code").value;
+
+let blob = new Blob([code],{
+type:"text/plain"
+});
+
+let a = document.createElement("a");
+
+a.href = URL.createObjectURL(blob);
+
+a.download = "ArduinoProject.ino";
+
+a.click();
+
+alert(
+".ino downloaded.\nOpen it in Arduino IDE and upload."
 );
 
 }
