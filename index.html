@@ -23,9 +23,19 @@ body{
   background:#2c313c;
   display:flex;
   align-items:center;
-  padding-left:15px;
+  padding-left:10px;
+  gap:10px;
   color:white;
-  font-size:18px;
+}
+
+/* BUTTONS */
+.topbtn{
+  background:#4C97FF;
+  border:none;
+  color:white;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
 /* BLOCKLY */
@@ -37,7 +47,7 @@ body{
   height:calc(100vh - 50px);
 }
 
-/* SIDE */
+/* SIDE PANEL */
 #side{
   position:absolute;
   top:50px;
@@ -50,19 +60,6 @@ body{
   box-sizing:border-box;
 }
 
-/* BUTTONS */
-button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  background:#4C97FF;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-}
-
-/* CODE BOX */
 textarea{
   width:100%;
   height:80%;
@@ -81,9 +78,33 @@ textarea{
 
 <body>
 
-<!-- TOP -->
+<!-- TOPBAR -->
 <div id="topbar">
-Arduino mBlock Style IDE
+
+<button class="topbtn" onclick="generateCode()">
+Generate Code
+</button>
+
+<button class="topbtn" onclick="connectArduino()">
+Connect Arduino
+</button>
+
+<button class="topbtn" onclick="liveMode()">
+Live Mode
+</button>
+
+<button class="topbtn" onclick="uploadMode()">
+Upload Mode
+</button>
+
+<button class="topbtn" onclick="workspace.clear()">
+Clear Blocks
+</button>
+
+<span id="status">
+Disconnected
+</span>
+
 </div>
 
 <!-- BLOCKLY -->
@@ -92,13 +113,7 @@ Arduino mBlock Style IDE
 <!-- SIDE -->
 <div id="side">
 
-<button onclick="generateCode()">
-Generate Arduino Code
-</button>
-
-<button onclick="workspace.clear()">
-Clear Blocks
-</button>
+<h3>Arduino Code</h3>
 
 <textarea id="code"></textarea>
 
@@ -110,167 +125,168 @@ Clear Blocks
 
 const toolbox = {
 
-  "kind":"categoryToolbox",
+"kind":"categoryToolbox",
 
-  "contents":[
+"contents":[
 
-    /* EVENTS */
-    {
-      "kind":"category",
-      "name":"Events",
-      "colour":"#FFD500",
+/* EVENTS */
+{
+"kind":"category",
+"name":"Events",
+"colour":"#FFD500",
 
-      "contents":[
-        {
-          "kind":"block",
-          "type":"arduino_start"
-        }
-      ]
-    },
+"contents":[
+{
+"kind":"block",
+"type":"arduino_start"
+}
+]
+},
 
-    /* PINS */
-    {
-      "kind":"category",
-      "name":"Pins",
-      "colour":"#4C97FF",
+/* PINS */
+{
+"kind":"category",
+"name":"Pins",
+"colour":"#4C97FF",
 
-      "contents":[
+"contents":[
 
-        {
-          "kind":"block",
-          "type":"digital_write"
-        },
+{
+"kind":"block",
+"type":"digital_write"
+},
 
-        {
-          "kind":"block",
-          "type":"digital_read"
-        },
+{
+"kind":"block",
+"type":"digital_read"
+},
 
-        {
-          "kind":"block",
-          "type":"analog_read"
-        },
+{
+"kind":"block",
+"type":"analog_read"
+},
 
-        {
-          "kind":"block",
-          "type":"servo_write"
-        }
+{
+"kind":"block",
+"type":"servo_write"
+}
 
-      ]
-    },
+]
+},
 
-    /* SERIAL */
-    {
-      "kind":"category",
-      "name":"Serial Port",
-      "colour":"#2ECC71",
+/* SERIAL */
+{
+"kind":"category",
+"name":"Serial Port",
+"colour":"#2ECC71",
 
-      "contents":[
+"contents":[
 
-        {
-          "kind":"block",
-          "type":"serial_print"
-        }
+{
+"kind":"block",
+"type":"serial_print"
+}
 
-      ]
-    },
+]
+},
 
-    /* SENSOR */
-    {
-      "kind":"category",
-      "name":"Sensor",
-      "colour":"#5DADE2",
+/* SENSOR */
+{
+"kind":"category",
+"name":"Sensor",
+"colour":"#5DADE2",
 
-      "contents":[
+"contents":[
 
-        {
-          "kind":"block",
-          "type":"ultrasonic_sensor"
-        }
+{
+"kind":"block",
+"type":"ultrasonic_sensor"
+}
 
-      ]
-    },
+]
+},
 
-    /* CONTROL */
-    {
-      "kind":"category",
-      "name":"Control",
-      "colour":"#FFAB19",
+/* CONTROL */
+{
+"kind":"category",
+"name":"Control",
+"colour":"#FFAB19",
 
-      "contents":[
+"contents":[
 
-        {
-          "kind":"block",
-          "type":"controls_repeat_ext"
-        },
+{
+"kind":"block",
+"type":"controls_repeat_ext"
+},
 
-        {
-          "kind":"block",
-          "type":"controls_if"
-        }
+{
+"kind":"block",
+"type":"controls_if"
+}
 
-      ]
-    },
+]
+},
 
-    /* OPERATORS */
-    {
-      "kind":"category",
-      "name":"Operators",
-      "colour":"#40BF4A",
+/* OPERATORS */
+{
+"kind":"category",
+"name":"Operators",
+"colour":"#40BF4A",
 
-      "contents":[
+"contents":[
 
-        {
-          "kind":"block",
-          "type":"math_number"
-        },
+{
+"kind":"block",
+"type":"math_number"
+},
 
-        {
-          "kind":"block",
-          "type":"math_arithmetic"
-        },
+{
+"kind":"block",
+"type":"math_arithmetic"
+},
 
-        {
-          "kind":"block",
-          "type":"logic_compare"
-        },
+{
+"kind":"block",
+"type":"logic_compare"
+},
 
-        {
-          "kind":"block",
-          "type":"text"
-        }
+{
+"kind":"block",
+"type":"text"
+}
 
-      ]
-    },
+]
+},
 
-    /* VARIABLES */
-    {
-      "kind":"category",
-      "name":"Variables",
-      "colour":"#FF8C1A",
-      "custom":"VARIABLE"
-    },
+/* VARIABLES */
+{
+"kind":"category",
+"name":"Variables",
+"colour":"#FF8C1A",
+"custom":"VARIABLE"
+},
 
-    /* MY BLOCKS */
-    {
-      "kind":"category",
-      "name":"My Blocks",
-      "colour":"#FF6680",
-      "custom":"PROCEDURE"
-    }
+/* MY BLOCKS */
+{
+"kind":"category",
+"name":"My Blocks",
+"colour":"#FF6680",
+"custom":"PROCEDURE"
+}
 
-  ]
+]
+
 };
 
 /* ================= WORKSPACE ================= */
 
 var workspace = Blockly.inject('blocklyDiv',{
 
-  toolbox:toolbox,
+toolbox:toolbox,
 
-  trashcan:true,
+trashcan:true,
 
-  scrollbars:true
+scrollbars:true
 
 });
 
@@ -278,218 +294,258 @@ var workspace = Blockly.inject('blocklyDiv',{
 
 Blockly.Blocks['arduino_start'] = {
 
-  init:function(){
+init:function(){
 
-    this.appendDummyInput()
+this.appendDummyInput()
 
-      .appendField("when Arduino Uno starts up");
+.appendField("when Arduino Uno starts up");
 
-    this.setNextStatement(true);
+this.setNextStatement(true);
 
-    this.setColour("#FFD500");
-  }
+this.setColour("#FFD500");
+
+}
+
 };
 
-/* ================= PINS ================= */
+/* ================= DIGITAL WRITE ================= */
 
 Blockly.Blocks['digital_write'] = {
 
-  init:function(){
+init:function(){
 
-    this.appendDummyInput()
+this.appendDummyInput()
 
-      .appendField("set digital pin")
+.appendField("set digital pin")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["0","0"],
-        ["1","1"],
-        ["2","2"],
-        ["3","3"],
-        ["4","4"],
-        ["5","5"],
-        ["6","6"],
-        ["7","7"],
-        ["8","8"],
-        ["9","9"],
-        ["10","10"],
-        ["11","11"],
-        ["12","12"],
-        ["13","13"]
-      ]),"PIN")
+.appendField(new Blockly.FieldDropdown([
+["0","0"],
+["1","1"],
+["2","2"],
+["3","3"],
+["4","4"],
+["5","5"],
+["6","6"],
+["7","7"],
+["8","8"],
+["9","9"],
+["10","10"],
+["11","11"],
+["12","12"],
+["13","13"]
+]),"PIN")
 
-      .appendField("output as")
+.appendField("output as")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["HIGH","HIGH"],
-        ["LOW","LOW"]
-      ]),"STATE");
+.appendField(new Blockly.FieldDropdown([
+["HIGH","HIGH"],
+["LOW","LOW"]
+]),"STATE");
 
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
+this.setPreviousStatement(true);
 
-    this.setColour("#4C97FF");
-  }
+this.setNextStatement(true);
+
+this.setColour("#4C97FF");
+
+}
+
 };
+
+/* ================= DIGITAL READ ================= */
 
 Blockly.Blocks['digital_read'] = {
 
-  init:function(){
+init:function(){
 
-    this.appendDummyInput()
+this.appendDummyInput()
 
-      .appendField("read digital pin")
+.appendField("read digital pin")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["0","0"],
-        ["1","1"],
-        ["2","2"],
-        ["3","3"],
-        ["4","4"],
-        ["5","5"]
-      ]),"PIN");
+.appendField(new Blockly.FieldDropdown([
+["0","0"],
+["1","1"],
+["2","2"],
+["3","3"],
+["4","4"],
+["5","5"]
+]),"PIN");
 
-    this.setOutput(true);
+this.setOutput(true);
 
-    this.setColour("#4C97FF");
-  }
+this.setColour("#4C97FF");
+
+}
+
 };
+
+/* ================= ANALOG READ ================= */
 
 Blockly.Blocks['analog_read'] = {
 
-  init:function(){
+init:function(){
 
-    this.appendDummyInput()
+this.appendDummyInput()
 
-      .appendField("read analog pin")
+.appendField("read analog pin")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["A0","A0"],
-        ["A1","A1"],
-        ["A2","A2"],
-        ["A3","A3"],
-        ["A4","A4"],
-        ["A5","A5"]
-      ]),"PIN");
+.appendField(new Blockly.FieldDropdown([
+["A0","A0"],
+["A1","A1"],
+["A2","A2"],
+["A3","A3"],
+["A4","A4"],
+["A5","A5"]
+]),"PIN");
 
-    this.setOutput(true);
+this.setOutput(true);
 
-    this.setColour("#4C97FF");
-  }
+this.setColour("#4C97FF");
+
+}
+
 };
 
 /* ================= SERVO ================= */
 
 Blockly.Blocks['servo_write'] = {
 
-  init:function(){
+init:function(){
 
-    this.appendDummyInput()
+this.appendDummyInput()
 
-      .appendField("set servo pin")
+.appendField("set servo pin")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["3","3"],
-        ["5","5"],
-        ["6","6"],
-        ["9","9"],
-        ["10","10"],
-        ["11","11"]
-      ]),"PIN")
+.appendField(new Blockly.FieldDropdown([
+["3","3"],
+["5","5"],
+["6","6"],
+["9","9"],
+["10","10"],
+["11","11"]
+]),"PIN")
 
-      .appendField("angle")
+.appendField("angle")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["0","0"],
-        ["30","30"],
-        ["45","45"],
-        ["60","60"],
-        ["90","90"],
-        ["120","120"],
-        ["135","135"],
-        ["150","150"],
-        ["180","180"]
-      ]),"ANGLE");
+.appendField(new Blockly.FieldDropdown([
+["0","0"],
+["30","30"],
+["45","45"],
+["60","60"],
+["90","90"],
+["120","120"],
+["135","135"],
+["150","150"],
+["180","180"]
+]),"ANGLE");
 
-    this.setPreviousStatement(true);
+this.setPreviousStatement(true);
 
-    this.setNextStatement(true);
+this.setNextStatement(true);
 
-    this.setColour("#4C97FF");
-  }
+this.setColour("#4C97FF");
+
+}
+
 };
 
 /* ================= SERIAL ================= */
 
 Blockly.Blocks['serial_print'] = {
 
-  init:function(){
+init:function(){
 
-    this.appendValueInput("TEXT")
+this.appendValueInput("TEXT")
 
-      .appendField("serial print");
+.appendField("serial print");
 
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
+this.setPreviousStatement(true);
 
-    this.setColour("#2ECC71");
-  }
+this.setNextStatement(true);
+
+this.setColour("#2ECC71");
+
+}
+
 };
 
 /* ================= SENSOR ================= */
 
 Blockly.Blocks['ultrasonic_sensor'] = {
 
-  init:function(){
+init:function(){
 
-    this.appendDummyInput()
+this.appendDummyInput()
 
-      .appendField("read ultrasonic trig")
+.appendField("read ultrasonic trig")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["2","2"],
-        ["3","3"],
-        ["4","4"],
-        ["5","5"],
-        ["6","6"],
-        ["7","7"],
-        ["8","8"],
-        ["9","9"]
-      ]),"TRIG")
+.appendField(new Blockly.FieldDropdown([
+["2","2"],
+["3","3"],
+["4","4"],
+["5","5"],
+["6","6"],
+["7","7"],
+["8","8"],
+["9","9"]
+]),"TRIG")
 
-      .appendField("echo")
+.appendField("echo")
 
-      .appendField(new Blockly.FieldDropdown([
-        ["2","2"],
-        ["3","3"],
-        ["4","4"],
-        ["5","5"],
-        ["6","6"],
-        ["7","7"],
-        ["8","8"],
-        ["9","9"]
-      ]),"ECHO");
+.appendField(new Blockly.FieldDropdown([
+["2","2"],
+["3","3"],
+["4","4"],
+["5","5"],
+["6","6"],
+["7","7"],
+["8","8"],
+["9","9"]
+]),"ECHO");
 
-    this.setOutput(true);
+this.setOutput(true);
 
-    this.setColour("#5DADE2");
-  }
+this.setColour("#5DADE2");
+
+}
+
 };
 
 /* ================= GENERATE CODE ================= */
 
 function generateCode(){
 
-let finalCode = `
+let code = `
 
 #include <Servo.h>
 
 Servo myServo;
 
+long readUltrasonicDistance(int trigPin,int echoPin){
+
+pinMode(trigPin,OUTPUT);
+
+digitalWrite(trigPin,LOW);
+
+delayMicroseconds(2);
+
+digitalWrite(trigPin,HIGH);
+
+delayMicroseconds(10);
+
+digitalWrite(trigPin,LOW);
+
+pinMode(echoPin,INPUT);
+
+return pulseIn(echoPin,HIGH)*0.034/2;
+
+}
+
 void setup(){
 
-  Serial.begin(9600);
+Serial.begin(9600);
 
-  myServo.attach(9);
+myServo.attach(9);
 
 }
 
@@ -499,7 +555,74 @@ void loop(){
 
 `;
 
-document.getElementById("code").value = finalCode;
+document.getElementById("code").value = code;
+
+}
+
+/* ================= LIVE COMMUNICATION ================= */
+
+let port;
+let writer;
+
+async function connectArduino(){
+
+try{
+
+port = await navigator.serial.requestPort();
+
+await port.open({ baudRate:9600 });
+
+writer = port.writable.getWriter();
+
+document.getElementById("status").innerText =
+"Arduino Connected";
+
+}
+catch(err){
+
+alert("Connection Failed");
+
+}
+
+}
+
+/* ================= LIVE MODE ================= */
+
+async function liveMode(){
+
+if(!writer){
+
+alert("Connect Arduino First");
+
+return;
+
+}
+
+try{
+
+await writer.write(
+new TextEncoder().encode("LIVE_MODE\n")
+);
+
+alert("Live Mode Started");
+
+}
+catch(err){
+
+alert("Live Mode Error");
+
+}
+
+}
+
+/* ================= UPLOAD MODE ================= */
+
+function uploadMode(){
+
+alert(
+"Browser cannot fully upload sketches directly.\nUse Arduino CLI or Electron app backend for real upload."
+);
+
 }
 
 </script>
