@@ -186,9 +186,9 @@ Blockly.Blocks['digital_write'] = {
 init:function(){
 this.appendDummyInput()
 .appendField("Digital Pin")
-.appendField(new Blockly.FieldDropdown([["2","2"],["3","3"],["4","4"],["5","5"],["6","6"]),"PIN")
+.appendField(new Blockly.FieldDropdown([["2","2"],["3","3"],["4","4"],["5","5"]]),"PIN")
 .appendField("set")
-.appendField(new Blockly.FieldDropdown([["high","high"],["LOW","LOW"]]),"STATE");
+.appendField(new Blockly.FieldDropdown([["HIGH","HIGH"],["LOW","LOW"]]),"STATE");
 this.setPreviousStatement(true);
 this.setNextStatement(true);
 this.setColour("#4C97FF");
