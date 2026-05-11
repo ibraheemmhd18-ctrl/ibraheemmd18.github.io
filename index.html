@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Arduino Block IDE STYLE</title>   																																		
+<title>Arduino Block IDE FIXED</title>
 
 <style>
 body{
@@ -12,16 +12,13 @@ body{
   color:#0f0;
 }
 
-/* TOP BAR */
 #topbar{
   display:flex;
   gap:10px;
   padding:10px;
   background:#222;
-  align-items:center;
 }
 
-/* MAIN LAYOUT */
 #container{
   display:flex;
   height:90vh;
@@ -32,6 +29,26 @@ body{
   width:20%;
   background:#000;
   padding:10px;
+}
+
+.category{
+  padding:10px;
+  background:#333;
+  margin:5px 0;
+  cursor:pointer;
+}
+
+/* BLOCK LIST */
+.blockList{
+  display:none;
+  padding-left:10px;
+}
+
+.block{
+  background:#555;
+  padding:5px;
+  margin:5px 0;
+  cursor:pointer;
 }
 
 /* WORKSPACE */
@@ -47,36 +64,18 @@ body{
   background:#111;
   padding:10px;
 }
-
-/* BLOCK CATEGORIES */
-.category{
-  padding:8px;
-  margin:5px 0;
-  background:#333;
-  cursor:pointer;
-}
-
-/* BUTTONS */
-button{
-  padding:8px;
-  cursor:pointer;
-}
 </style>
-
 </head>
 
 <body>
 
 <!-- TOP BAR -->
 <div id="topbar">
-
-<button>Live Mode</button>
-<button>Upload Mode</button>
-<button>Connect COM</button>
-<button>Upload</button>
-
-<span>MODE: LIVE</span>
-
+<button onclick="setLive()">Live</button>
+<button onclick="setUpload()">Upload</button>
+<button onclick="connectCOM()">Connect COM</button>
+<button onclick="upload()">Upload Code</button>
+<span id="mode">LIVE MODE</span>
 </div>
 
 <!-- MAIN -->
@@ -85,36 +84,82 @@ button{
 <!-- TOOLBOX -->
 <div id="toolbox">
 
-<div class="category">Control</div>
-<div class="category">Pins</div>
-<div class="category">Output</div>
-<div class="category">Serial</div>
+<div class="category" onclick="toggle('control')">Control</div>
+<div id="control" class="blockList">
+<div class="block">forever</div>
+<div class="block">repeat 10</div>
+</div>
+
+<div class="category" onclick="toggle('pins')">Pins</div>
+<div id="pins" class="blockList">
+<div class="block">digital read</div>
+<div class="block">analog read</div>
+</div>
+
+<div class="category" onclick="toggle('output')">Output</div>
+<div id="output" class="blockList">
+<div class="block">PWM write</div>
+</div>
+
+<div class="category" onclick="toggle('serial')">Serial</div>
+<div id="serial" class="blockList">
+<div class="block">serial print hello</div>
+</div>
 
 </div>
 
 <!-- WORKSPACE -->
 <div id="workspace">
-
-<h3>Block Workspace</h3>
-
+<h3>Workspace</h3>
 <div style="border:1px solid #0f0;height:80%;"></div>
-
 </div>
 
 <!-- PANEL -->
 <div id="panel">
-
-<h3>Serial Monitor</h3>
-
+<h3>Serial</h3>
 <div style="background:#000;height:150px;"></div>
-
-<h3>Live Camera</h3>
-
-<div style="background:#333;height:150px;"></div>
-
 </div>
 
 </div>
+
+<script>
+
+// ================= CATEGORY TOGGLE =================
+function toggle(id){
+  let el = document.getElementById(id);
+  el.style.display = (el.style.display === "block") ? "none" : "block";
+}
+
+// ================= MODE =================
+let mode = "LIVE";
+
+function setLive(){
+  mode = "LIVE";
+  document.getElementById("mode").innerText = "LIVE MODE";
+}
+
+function setUpload(){
+  mode = "UPLOAD";
+  document.getElementById("mode").innerText = "UPLOAD MODE";
+}
+
+// ================= COM CONNECT (WORKS IN CHROME) =================
+async function connectCOM(){
+  try{
+    const port = await navigator.serial.requestPort();
+    await port.open({ baudRate:9600 });
+    alert("COM CONNECTED ✔");
+  }catch(e){
+    alert("COM NOT CONNECTED");
+  }
+}
+
+// ================= UPLOAD PLACEHOLDER =================
+function upload(){
+  alert("Upload ready (backend needed with Arduino CLI)");
+}
+
+</script>
 
 </body>
 </html>
