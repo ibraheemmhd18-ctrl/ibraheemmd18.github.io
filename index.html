@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mBlock IDE Clone - Drag & Drop Arduino Blocks</title>
+    <title>mBlock IDE - Arduino Block Coding with Categories</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://unpkg.com/blockly@10.4.3/blockly.min.js"></script>
     <script src="https://unpkg.com/blockly@10.4.3/php/source/arduino_generator.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background: #1e1f2c;
+            background: #1a1b26;
             overflow: hidden;
             height: 100vh;
-            color: #eef2ff;
         }
         .app {
             display: flex;
@@ -23,13 +26,13 @@
             height: 100vh;
         }
         .toolbar {
-            background: #2d2f3e;
-            padding: 8px 20px;
+            background: #24253a;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid #3e4052;
+            gap: 20px;
+            border-bottom: 1px solid #3a3c55;
+            z-index: 10;
         }
         .logo {
             font-weight: 700;
@@ -40,44 +43,47 @@
             color: transparent;
         }
         .btn {
-            background: #3e4057;
+            background: #3a3c55;
             border: none;
             color: white;
-            padding: 6px 16px;
+            padding: 6px 18px;
             border-radius: 30px;
             font-weight: 500;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: 0.2s;
         }
         .btn-primary { background: #4c9aff; }
+        .btn-primary:hover { background: #3b7bcb; }
         .btn-success { background: #2d9c6e; }
+        .console-panel {
+            background: #14151f;
+            border-left: 1px solid #3a3c55;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+        }
         .workspace {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
         .blockly-area {
-            flex: 3;
-            background: #252736;
+            flex: 1;
+            background: #1e1f2e;
+            position: relative;
         }
         #blocklyDiv {
             height: 100%;
             width: 100%;
         }
-        .console-panel {
-            flex: 1;
-            background: #1e1f2c;
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #36394d;
-        }
         .console-header {
             padding: 12px 16px;
-            background: #2a2c3b;
+            background: #1c1d2a;
             font-weight: 600;
-            border-bottom: 1px solid #3e4052;
+            border-bottom: 1px solid #2a2c40;
         }
         .console-output {
             flex: 1;
@@ -85,15 +91,22 @@
             padding: 12px;
             font-family: monospace;
             font-size: 0.8rem;
-            background: #14151f;
+            background: #0c0d16;
+            color: #cbd5ff;
         }
-        .log-line { padding: 4px 0; border-bottom: 1px solid #2a2c3a; }
-        .log-error { color: #ff8a8a; }
-        .log-success { color: #82f5b0; }
-        .log-info { color: #8fcbff; }
-        @media (max-width: 700px) {
-            .workspace { flex-direction: column; }
-            .console-panel { min-height: 200px; }
+        .log-line { padding: 6px 0; border-bottom: 1px solid #22232e; }
+        .log-error { color: #ff8a7a; }
+        .log-success { color: #8effb2; }
+        .log-info { color: #7bc5ff; }
+        /* Ensure toolbox is visible */
+        .blocklyToolboxDiv {
+            background: #1a1b26 !important;
+            border-right: 1px solid #2d2f42 !important;
+            width: 180px !important;
+        }
+        .blocklyTreeRow {
+            color: #eef2ff !important;
+            padding: 8px !important;
         }
     </style>
 </head>
@@ -102,9 +115,9 @@
     <div class="toolbar">
         <div class="logo"><i class="fas fa-microchip"></i> mBlock IDE · Arduino Uno</div>
         <button id="compileBtn" class="btn btn-primary"><i class="fas fa-code"></i> Compile & Download .ino</button>
-        <button id="clearConsoleBtn" class="btn"><i class="fas fa-trash"></i> Clear Console</button>
-        <div style="font-size:0.8rem; margin-left: auto;">
-            <i class="fas fa-arrows-alt"></i> Drag blocks from left →
+        <button id="clearConsole" class="btn"><i class="fas fa-trash"></i> Clear Console</button>
+        <div style="font-size:0.85rem; margin-left: auto;">
+            <i class="fas fa-arrows-alt"></i> Drag blocks from LEFT categories →
         </div>
     </div>
     <div class="workspace">
@@ -116,23 +129,19 @@
                 <span><i class="fas fa-terminal"></i> Output & Instructions</span>
             </div>
             <div class="console-output" id="consoleOutput">
-                <div class="log-line log-info">⚡ Welcome to mBlock Arduino IDE!</div>
-                <div class="log-line log-info">📌 HOW TO USE:</div>
-                <div class="log-line log-info">1️⃣ Look at the LEFT sidebar → categories: Pins, Analog, Control, Serial</div>
-                <div class="log-line log-info">2️⃣ CLICK on any block and DRAG it into the white area</div>
-                <div class="log-line log-info">3️⃣ Connect blocks vertically (they snap together)</div>
-                <div class="log-line log-info">4️⃣ Click "Compile & Download" to get Arduino code</div>
-                <div class="log-line log-info">5️⃣ Upload the .ino file using Arduino IDE or arduino-cli</div>
-                <div class="log-line log-success">✅ Drag a "pin mode" block and "digital write" to start!</div>
+                <div class="log-line log-info">⚡ mBlock IDE Ready</div>
+                <div class="log-line log-info">📂 Categories are on the LEFT side:</div>
+                <div class="log-line log-info">   🔌 Digital Pins &nbsp;&nbsp; 📊 Analog / PWM</div>
+                <div class="log-line log-info">   ⏱️ Control &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 💬 Serial Monitor</div>
+                <div class="log-line log-success">👉 Click any block and DRAG it to the white workspace</div>
+                <div class="log-line log-info">Blocks snap together vertically. Press Compile to generate Arduino code.</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ------------------------------
-    // 1. DEFINE ALL ARDUINO BLOCKS (with pin categories)
-    // ------------------------------
+    // ---------- DEFINE ALL ARDUINO BLOCKS (with pin categories) ----------
     Blockly.Blocks['arduino_pin_mode'] = {
         init: function() {
             this.appendDummyInput()
@@ -143,7 +152,7 @@
             this.setPreviousStatement(true, null);
             this.setNextStatement(true, null);
             this.setColour(210);
-            this.setTooltip("Set Arduino digital pin mode");
+            this.setTooltip("Set digital pin mode");
         }
     };
     Blockly.Blocks['arduino_digital_write'] = {
@@ -226,7 +235,6 @@
             this.setColour(260);
         }
     };
-    // Simple if block
     Blockly.Blocks['controls_if'] = {
         init: function() {
             this.appendValueInput("IF0")
@@ -265,10 +273,8 @@
         }
     };
 
-    // ------------------------------
-    // 2. CODE GENERATOR (Arduino C++)
-    // ------------------------------
-    function generateCode(block) {
+    // ---------- GENERATOR FUNCTIONS ----------
+    function gen(block) {
         switch(block.type) {
             case 'arduino_pin_mode':
                 return `pinMode(${block.getFieldValue('PIN')}, ${block.getFieldValue('MODE')});\n`;
@@ -308,18 +314,12 @@
             default: return '';
         }
     }
-    for(let type in Blockly.Blocks) {
-        if(Blockly.Blocks[type] && !Blockly.Arduino[type]) {
-            Blockly.Arduino[type] = generateCode;
-        }
-    }
+    for(let t in Blockly.Blocks) if(Blockly.Blocks[t] && !Blockly.Arduino[t]) Blockly.Arduino[t] = gen;
 
-    // ------------------------------
-    // 3. INIT BLOCKLY WORKSPACE
-    // ------------------------------
+    // ---------- INIT BLOCKLY WITH CATEGORIES ----------
     const workspace = Blockly.inject('blocklyDiv', {
         toolbox: `
-        <xml id="toolbox" style="display: none;">
+        <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none;">
             <category name="🔌 Digital Pins" colour="210">
                 <block type="arduino_pin_mode"></block>
                 <block type="arduino_digital_write"></block>
@@ -329,7 +329,7 @@
                 <block type="arduino_analog_read"></block>
                 <block type="arduino_analog_write"></block>
             </category>
-            <category name="⏱️ Control & Delay" colour="290">
+            <category name="⏱️ Control & Logic" colour="290">
                 <block type="arduino_delay"></block>
                 <block type="controls_if"></block>
                 <block type="logic_compare"></block>
@@ -344,11 +344,13 @@
         </xml>`,
         grid: { spacing: 20, length: 3, colour: '#3a3c55' },
         zoom: { controls: true, wheel: true },
-        trashcan: true
+        trashcan: true,
+        collapse: false,
+        comments: false
     });
 
-    // Add a default "blink" example to show dragging works
-    let defaultXml = `<xml xmlns="http://www.w3.org/1999/xhtml">
+    // Add a default blink example so workspace isn't empty
+    let demoXml = `<xml xmlns="http://www.w3.org/1999/xhtml">
         <block type="arduino_pin_mode" x="100" y="80">
             <field name="PIN">13</field><field name="MODE">OUTPUT</field>
             <next><block type="arduino_serial_begin"><field name="BAUD">9600</field>
@@ -358,11 +360,9 @@
             <next><block type="arduino_delay"><value name="DELAY_MS"><block type="math_number"><field name="NUM">1000</field></block></value>
             <next><block type="arduino_serial_println"><value name="TEXT"><block type="text"><field name="TEXT">Blinking!</field></block></value></block></next></block></next></block></next></block></next></block></next></block></next></block>
     </xml>`;
-    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(defaultXml), workspace);
+    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(demoXml), workspace);
 
-    // ------------------------------ 																		
-    // 4. COMPILE & DOWNLOAD .ino FILE
-    // ------------------------------
+    // ---------- UI Functions ----------
     function log(msg, type='info') {
         let out = document.getElementById('consoleOutput');
         let div = document.createElement('div');
@@ -371,26 +371,29 @@
         out.appendChild(div);
         div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    document.getElementById('clearConsoleBtn').onclick = () => {
+    document.getElementById('clearConsole').onclick = () => {
         document.getElementById('consoleOutput').innerHTML = '';
-        log('Console cleared. Drag blocks and compile!', 'info');
+        log('Console cleared. Keep dragging blocks!', 'info');
     };
     document.getElementById('compileBtn').onclick = () => {
         try {
             let code = Blockly.Arduino.workspaceToCode(workspace);
-            let fullSketch = `// Arduino Uno Sketch generated by mBlock IDE\nvoid setup() {\n  ${code.split('void loop')[0] || ''}\n}\n\nvoid loop() {\n  ${code.includes('void loop') ? code.split('void loop')[1] : code}\n}`;
-            if(!fullSketch.includes('pinMode')) fullSketch = `void setup() {\n  pinMode(LED_BUILTIN, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(LED_BUILTIN, HIGH); delay(1000); digitalWrite(LED_BUILTIN, LOW); delay(1000);\n}`;
+            let fullSketch = `// Arduino Uno Sketch generated by mBlock IDE\nvoid setup() {\n  ${code.split('void loop')[0] || '  // setup code'}\n}\n\nvoid loop() {\n  ${code.includes('void loop') ? code.split('void loop')[1] : code}\n}`;
+            if(!fullSketch.includes('pinMode') && !fullSketch.includes('setup')) {
+                fullSketch = `void setup() {\n  pinMode(LED_BUILTIN, OUTPUT);\n  Serial.begin(9600);\n}\nvoid loop() {\n  digitalWrite(LED_BUILTIN, HIGH); delay(1000); digitalWrite(LED_BUILTIN, LOW); delay(1000);\n}`;
+            }
             const blob = new Blob([fullSketch], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'mblock_sketch.ino';
             a.click();
             URL.revokeObjectURL(a.href);
-            log('✅ Sketch compiled and downloaded as mblock_sketch.ino', 'success');
-            log('📤 Upload to Arduino Uno using: arduino-cli upload -p COMx --fqbn arduino:avr:uno mblock_sketch.ino', 'info');
+            log('✅ Sketch compiled and saved as mblock_sketch.ino', 'success');
+            log('📤 To upload to Arduino Uno: arduino-cli compile --fqbn arduino:avr:uno mblock_sketch.ino && arduino-cli upload -p COM3 --fqbn arduino:avr:uno mblock_sketch.ino', 'info');
         } catch(e) { log('Compile error: '+e.message, 'error'); }
     };
-    log('✨ Ready! Drag ANY block from the left panel into the white workspace.', 'success');
+    log('🌟 Categories are on the LEFT! Click any category (Digital Pins, Analog, etc.) to see blocks.', 'success');
+    log('👉 Drag a block from the left into the white workspace. They snap together!', 'info');
 </script>
 </body>
 </html>
