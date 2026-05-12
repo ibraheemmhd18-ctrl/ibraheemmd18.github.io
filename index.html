@@ -1,566 +1,289 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arduino Blockly IDE</title>
-
+<title>Mini Working mBlock ARDUINO IDE</title>
 <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-
 <style>
-
 body{
-    margin:0;
-    overflow:hidden;
-    font-family:Arial;
-    background:#111;
-    color:white;
+margin:0;
+font-family:Arial;
+background:#1e1e1e;
+color:white;
+overflow:hidden;
 }
-
 #topbar{
-    height:55px;
-    background:#1f1f1f;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:0 10px;
-    border-bottom:1px solid #333;
+height:60px;
+background:#2d2d2d;
+display:flex;
+align-items:center;
+padding:10px;
+gap:10px;
 }
-
-button,select{
-    padding:8px 14px;
-    border:none;
-    border-radius:8px;
-    background:#2d2d2d;
-    color:white;
-    cursor:pointer;
+button{
+padding:10px;
+border:none;
+border-radius:8px;
+background:#00aaff;
+color:white;
+font-weight:bold;
+cursor:pointer;
 }
-
-button:hover{
-    background:#444;
-}
-
 #main{
-    display:flex;
-    height:calc(100vh - 55px);
+display:flex;
+height:calc(100vh - 60px);
 }
-
 #blocklyDiv{
-    width:70%;
-    height:100%;
+height:100%;
+width:70%;
+background:white;
 }
-
 #rightPanel{
-    width:30%;
-    background:#181818;
-    border-left:1px solid #333;
-    display:flex;
-    flex-direction:column;
+width:30%;
+background:#111;
+padding:10px;
+overflow:auto;
 }
-
-.panel{
-    padding:10px;
-    border-bottom:1px solid #333;
+textarea{
+width:100%;
+height:300px;
+background:black;
+color:#00ff00;
+padding:10px;
 }
-
-#generatedCode{
-    width:100%;
-    height:230px;
-    background:black;
-    color:#00ff66;
-    border:none;
-    resize:none;
-    padding:10px;
-    font-family:monospace;
-}
-
 #serialMonitor{
-    flex:1;
-    background:black;
-    color:#00ff66;
-    overflow:auto;
-    padding:10px;
-    font-family:monospace;
+height:200px;
+overflow:auto;
+background:black;
+padding:10px;
+color:#00ff00;
+margin-bottom:10px;
 }
-
-video{
-    width:100%;
-    border-radius:10px;
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
 }
-
 </style>
 </head>
-
 <body>
 
 <div id="topbar">
-
-<button onclick="setMode('LIVE')">LIVE MODE</button>
-
-<button onclick="setMode('UPLOAD')">UPLOAD MODE</button>
-
-<button onclick="connectCOM()">CONNECT COM</button>
-
-<button onclick="uploadCode()">UPLOAD</button>
-
-<select id="baudRate">
-<option>9600</option>
-<option>115200</option>
-</select>
-
-<span id="modeText">MODE: LIVE</span>
-
+<button onclick="connectSerial()">Connect COM</button>
+<button onclick="generateCode()">Generate Code</button>
+<button onclick="uploadCode()">Upload</button>
+<button onclick="toggleLiveMode()">Live Mode</button>
 </div>
 
 <div id="main">
-
 <div id="blocklyDiv"></div>
 
 <div id="rightPanel">
+<h2>Arduino Code</h2>
+<textarea id="codeArea"></textarea>
 
-<div class="panel">
-<h3>Generated Arduino Code</h3>
-<textarea id="generatedCode"></textarea>
-</div>
-
-<div class="panel">
-<h3>Live Camera</h3>
-<video id="camera" autoplay playsinline></video>
-</div>
-
+<h2>Serial Monitor</h2>
 <div id="serialMonitor"></div>
 
+<input id="serialInput" placeholder="Send Serial Text">
+<button onclick="sendSerial()">Send</button>
 </div>
-
 </div>
 
 <xml id="toolbox" style="display:none">
 
-<category name="Events" colour="#ffbf00">
+<category name="Control" colour="120">
+<block type="controls_repeat_ext"></block>
+<block type="controls_whileUntil"></block>
+<block type="controls_if"></block>
+</category>
+
+<category name="Math" colour="230">
+<block type="math_number"></block>
+</category>
+
+<category name="Text" colour="160">
+<block type="text"></block>
+</category>
+
+<category name="Arduino" colour="20">
 <block type="arduino_start"></block>
-<block type="when_space"></block>
-</category>
-
-<category name="Control" colour="#5C81A6">
-
-<block type="controls_repeat_ext">
-<value name="TIMES">
-<shadow type="math_number">
-<field name="NUM">10</field>
-</shadow>
-</value>
-</block>
-
-<block type="forever_loop"></block>
-
-</category>
-
-<category name="Pins" colour="#5CA65C">
-
-<block type="digital_read"></block>
-
+<block type="digital_write"></block>
 <block type="analog_read"></block>
-
-<block type="pwm_write"></block>
-
-</category>
-
-<category name="Serial" colour="#995CA6">
-
-<block type="serial_print"></block>
-
-</category>
-
-<category name="Servo" colour="#d65c5c">
-
 <block type="servo_write"></block>
-
+<block type="ultrasonic_read"></block>
+<block type="serial_print"></block>
 </category>
 
-<category name="Ultrasonic" colour="#5c9ed6">
-
-<block type="ultrasonic_read"></block>
-
+<category name="Live Mode" colour="300">
+<block type="live_key"></block>
 </category>
 
 </xml>
 
 <script>
-
-/* ================= MODE ================= */
-
-let mode = "LIVE";
-let port = null;
-let reader = null;
-
-/* ================= BLOCKLY ================= */
-
 const workspace = Blockly.inject('blocklyDiv',{
-    toolbox:document.getElementById('toolbox'),
-    trashcan:true,
-    zoom:{
-        controls:true,
-        wheel:true
-    }
+toolbox:document.getElementById('toolbox')
 });
 
-/* ================= CUSTOM BLOCKS ================= */
-
-Blockly.Blocks['arduino_start'] = {
+Blockly.Blocks['arduino_start']={
 init:function(){
-this.appendDummyInput()
-.appendField("when Arduino Uno starts");
+this.appendDummyInput().appendField('when Arduino starts');
 this.setNextStatement(true);
-this.setColour(40);
+this.setColour(20);
 }
 };
 
-Blockly.Blocks['when_space'] = {
+Blockly.Blocks['digital_write']={
 init:function(){
 this.appendDummyInput()
-.appendField("when SPACE key pressed");
-this.setNextStatement(true);
-this.setColour(40);
-}
-};
-
-Blockly.Blocks['forever_loop'] = {
-init:function(){
-this.appendDummyInput()
-.appendField("forever");
-this.appendStatementInput("DO");
-this.setPreviousStatement(true);
-this.setNextStatement(true);
-this.setColour(210);
-}
-};
-
-Blockly.Blocks['digital_read'] = {
-init:function(){
-this.appendDummyInput()
-.appendField("digital read pin")
-.appendField(new Blockly.FieldDropdown([
-["2","2"],
-["3","3"],
-["4","4"],
-["5","5"],
-["6","6"],
-["7","7"]
-]),"PIN");
-this.setOutput(true,"Number");
-this.setColour(120);
-}
-};
-
-Blockly.Blocks['analog_read'] = {
-init:function(){
-this.appendDummyInput()
-.appendField("analog read")
-.appendField(new Blockly.FieldDropdown([
-["A0","A0"],
-["A1","A1"],
-["A2","A2"],
-["A3","A3"],
-["A4","A4"],
-["A5","A5"]
-]),"PIN");
-this.setOutput(true,"Number");
-this.setColour(120);
-}
-};
-
-Blockly.Blocks['pwm_write'] = {
-init:function(){
-this.appendDummyInput()
-.appendField("set PWM pin")
-.appendField(new Blockly.FieldDropdown([
-["3","3"],
-["5","5"],
-["6","6"],
-["9","9"],
-["10","10"],
-["11","11"]
-]),"PIN")
-.appendField("to")
-.appendField(new Blockly.FieldNumber(255,0,255),"VALUE");
+.appendField('digital write pin')
+.appendField(new Blockly.FieldNumber(13), 'PIN')
+.appendField('HIGH');
 this.setPreviousStatement(true);
 this.setNextStatement(true);
 this.setColour(20);
 }
 };
 
-Blockly.Blocks['serial_print'] = {
+Blockly.Blocks['analog_read']={
 init:function(){
 this.appendDummyInput()
-.appendField("serial print")
-.appendField(new Blockly.FieldTextInput("hello"),"TEXT");
+.appendField('analog read A0');
+this.setOutput(true,'Number');
+this.setColour(20);
+}
+};
+
+Blockly.Blocks['servo_write']={
+init:function(){
+this.appendDummyInput()
+.appendField('servo pin')
+.appendField(new Blockly.FieldNumber(9),'PIN')
+.appendField('angle')
+.appendField(new Blockly.FieldNumber(90),'ANGLE');
 this.setPreviousStatement(true);
 this.setNextStatement(true);
-this.setColour(260);
+this.setColour(20);
 }
 };
 
-Blockly.Blocks['servo_write'] = {
+Blockly.Blocks['ultrasonic_read']={
 init:function(){
 this.appendDummyInput()
-.appendField("servo pin")
-.appendField(new Blockly.FieldDropdown([
-["3","3"],
-["5","5"],
-["6","6"],
-["9","9"]
-]),"PIN")
-.appendField("angle")
-.appendField(new Blockly.FieldNumber(90,0,180),"ANGLE");
+.appendField('ultrasonic distance');
+this.setOutput(true,'Number');
+this.setColour(20);
+}
+};
+
+Blockly.Blocks['serial_print']={
+init:function(){
+this.appendValueInput('TEXT')
+.appendField('Serial Print');
 this.setPreviousStatement(true);
 this.setNextStatement(true);
-this.setColour(0);
+this.setColour(20);
 }
 };
 
-Blockly.Blocks['ultrasonic_read'] = {
+Blockly.Blocks['live_key']={
 init:function(){
 this.appendDummyInput()
-.appendField("read ultrasonic trig")
-.appendField(new Blockly.FieldDropdown([
-["2","2"],
-["3","3"],
-["4","4"]
-]),"TRIG")
-.appendField("echo")
-.appendField(new Blockly.FieldDropdown([
-["5","5"],
-["6","6"],
-["7","7"]
-]),"ECHO");
-this.setOutput(true,"Number");
-this.setColour(180);
+.appendField('when SPACE key pressed');
+this.setNextStatement(true);
+this.setColour(300);
 }
 };
 
-/* ================= MODE SWITCH ================= */
+Blockly.JavaScript['arduino_start']=function(block){
+return 'void setup(){\nSerial.begin(9600);\n}\n\nvoid loop(){\n';
+};
 
-function setMode(m){
+Blockly.JavaScript['digital_write']=function(block){
+const pin=block.getFieldValue('PIN');
+return `digitalWrite(${pin}, HIGH);\n`;
+};
 
-mode = m;
+Blockly.JavaScript['analog_read']=function(block){
+return ['analogRead(A0)', Blockly.JavaScript.ORDER_NONE];
+};
 
-document.getElementById("modeText").innerText =
-"MODE: " + m;
+Blockly.JavaScript['servo_write']=function(block){
+const angle=block.getFieldValue('ANGLE');
+return `servo.write(${angle});\n`;
+};
 
-}
+Blockly.JavaScript['ultrasonic_read']=function(block){
+return ['20', Blockly.JavaScript.ORDER_NONE];
+};
 
-/* ================= CAMERA ================= */
+Blockly.JavaScript['serial_print']=function(block){
+const text=Blockly.JavaScript.valueToCode(block,'TEXT',Blockly.JavaScript.ORDER_NONE)||'"Hello"';
+return `Serial.println(${text});\n`;
+};
 
-navigator.mediaDevices.getUserMedia({
-video:true
-})
-.then(stream=>{
-document.getElementById("camera").srcObject = stream;
-});
+Blockly.JavaScript['live_key']=function(block){
+return '// live key pressed\n';
+};
 
-/* ================= COM ================= */
-
-async function connectCOM(){
-
+async function connectSerial(){
 try{
-
-port = await navigator.serial.requestPort();
-
-await port.open({
-baudRate:parseInt(
-document.getElementById("baudRate").value
-)
-});
-
-log("COM CONNECTED ✔");
-
-startReading();
-
-}catch(err){
-
-log("COM CONNECTION FAILED");
-
+window.port = await navigator.serial.requestPort();
+await port.open({ baudRate:9600 });
+addSerial('Connected to Arduino');
+readSerial();
+}catch(e){
+alert(e);
+}
 }
 
-}
-
-/* ================= SERIAL MONITOR ================= */
-
-function log(text){
-
-let monitor =
-document.getElementById("serialMonitor");
-
-monitor.innerHTML += text + "<br>";
-
-monitor.scrollTop =
-monitor.scrollHeight;
-
-}
-
-async function startReading(){
-
+async function readSerial(){
 while(port.readable){
-
-reader = port.readable.getReader();
-
+const reader = port.readable.getReader();
 try{
-
 while(true){
-
-const { value, done } =
-await reader.read();
-
+const {value,done}=await reader.read();
 if(done) break;
-
-const text =
-new TextDecoder().decode(value);
-
-log(text);
-
+const text = new TextDecoder().decode(value);
+addSerial(text);
 }
-
-}catch(err){
-
-log("READ ERROR");
-
+}catch(e){
+console.log(e);
 }finally{
-
 reader.releaseLock();
-
+}
+}
 }
 
+function addSerial(text){
+const div=document.getElementById('serialMonitor');
+div.innerHTML += text + '<br>';
+div.scrollTop=div.scrollHeight;
 }
 
+async function sendSerial(){
+const text=document.getElementById('serialInput').value;
+const writer=port.writable.getWriter();
+await writer.write(new TextEncoder().encode(text+'\n'));
+writer.releaseLock();
 }
-
-/* ================= CODE GENERATOR ================= */
 
 function generateCode(){
-
-let code = "";
-
-const blocks =
-workspace.getTopBlocks(true);
-
-blocks.forEach(block=>{
-
-if(block.type === "serial_print"){
-
-let text =
-block.getFieldValue("TEXT");
-
-code +=
-`Serial.println("${text}");\n`;
-
+let code=Blockly.JavaScript.workspaceToCode(workspace);
+code += '\n}';
+document.getElementById('codeArea').value=code;
 }
 
-if(block.type === "pwm_write"){
-
-let pin =
-block.getFieldValue("PIN");
-
-let value =
-block.getFieldValue("VALUE");
-
-code +=
-`analogWrite(${pin},${value});\n`;
-
+function toggleLiveMode(){
+alert('Live mode toggled');
 }
 
-if(block.type === "servo_write"){
-
-let pin =
-block.getFieldValue("PIN");
-
-let angle =
-block.getFieldValue("ANGLE");
-
-code +=
-`servo${pin}.write(${angle});\n`;
-
+async function uploadCode(){
+const code=document.getElementById('codeArea').value;
+alert('Upload system needs Node.js backend + Arduino CLI');
+console.log(code);
 }
-
-});
-
-let finalCode =
-
-`#include <Servo.h>
-
-Servo servo3;
-Servo servo5;
-Servo servo6;
-Servo servo9;
-
-void setup(){
-
-Serial.begin(9600);
-
-servo3.attach(3);
-servo5.attach(5);
-servo6.attach(6);
-servo9.attach(9);
-
-}
-
-void loop(){
-
-${code}
-
-delay(10);
-
-}
-`;
-
-document.getElementById("generatedCode").value =
-finalCode;
-
-return finalCode;
-
-}
-
-/* ================= LIVE MODE SPACE KEY ================= */
-
-document.addEventListener("keydown",(e)=>{
-
-if(mode === "LIVE"){
-
-if(e.code === "Space"){
-
-log("SPACE KEY PRESSED");
-
-}
-
-}
-
-});
-
-/* ================= AUTO GENERATE ================= */
-
-workspace.addChangeListener(()=>{
-generateCode();
-});
-
-/* ================= UPLOAD ================= */
-
-function uploadCode(){
-
-if(mode !== "UPLOAD"){
-
-alert("Switch to UPLOAD MODE");
-
-return;
-
-}
-
-generateCode();
-
-alert(
-"Frontend Ready ✔\nBackend server + Arduino CLI needed for real upload."
-);
-
-}
-
 </script>
 
 </body>
